@@ -146,3 +146,7 @@ is missing the subcommand says so; it never substitutes a guess for a finding.
 ## License
 
 MIT — see `LICENSE`.
+
+---
+
+Part of [my always-on agent stack](https://github.com/Amz34) · [Awesome Agent Infrastructure](https://github.com/Amz34/awesome-agent-infrastructure) (135 live-checked building blocks).
