@@ -51,6 +51,26 @@ pip install lief capstone androguard                        # richer parsing
 Optional Python bindings are imported lazily — if they are absent, the subcommand still
 runs with the fallback backend or reports `tool_missing`.
 
+## Docker
+
+The image speaks MCP over stdio, so any client can spawn it directly — this is also the
+container Glama builds and introspects:
+
+```bash
+docker build -t rekit .
+printf '%s\n' \
+  '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"local","version":"1"}}}' \
+  '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
+  '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' | docker run -i --rm rekit
+```
+
+The server itself needs only Python and the pinned `mcp` package
+(`requirements-mcp.txt`, `mcp>=1.0,<2` — the transport API it uses is 1.x).
+The analysis backends stay out of the default image; `--build-arg
+REKIT_FULL_TOOLCHAIN=1` bakes in `binutils`, `radare2`, `binwalk`, `tshark`,
+`yara` and `flare-floss`. A backend that is not installed is reported as
+`tool_missing`, never guessed.
+
 ## Usage
 
 ```bash
