@@ -1,0 +1,22 @@
+name: ci
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Syntax + data checks
+        run: |
+          python -m compileall -q . || exit 1
+          python - <<'PY'
+          import json,glob,pathlib,sys
+          bad=0
+          for f in glob.glob("**/*.json",recursive=True):
+              if ".git/" in f: continue
+              try: json.load(open(f))
+              except Exception as e: print("BAD JSON",f,e); bad=1
+          sys.exit(bad)
+          PY
