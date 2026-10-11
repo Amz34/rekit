@@ -6,21 +6,28 @@
 # backend is not installed. A skipped check is reported as SKIP, never as PASS:
 # a missing backend must never look like a green test.
 #
-#   ./tests/run_rekit_suite.sh            # everything the host can run
-#   ./tests/run_rekit_suite.sh --quick    # backend-light subset (CI-safe)
+#   ./tests/run_rekit_suite.sh                 # everything the host can run
+#   ./tests/run_rekit_suite.sh --quick         # backend-light subset (CI-safe)
+#   ./tests/run_rekit_suite.sh --quick /tmp/x  # ...writing results into /tmp/x
 #
 # Env overrides: REKIT_PYTHON, REKIT_HOME, OUT, REKIT_APK_SAMPLE, REKIT_PE_SAMPLE
 set -uo pipefail
 
 QUICK=0
-[ "${1:-}" = "--quick" ] && QUICK=1
+OUT_ARG=""
+for a in "$@"; do
+  case "$a" in
+    --quick) QUICK=1 ;;
+    *)       OUT_ARG="$a" ;;
+  esac
+done
 
 SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REKIT_HOME="${REKIT_HOME:-$(dirname "$SELF")}"
 PY="${REKIT_PYTHON:-$(command -v python3)}"
 REKIT="$REKIT_HOME/rekit.py"
 SAMPLES="$SELF/samples"
-OUT="${OUT:-$SELF/out}"
+OUT="${OUT:-${OUT_ARG:-$SELF/out}}"
 mkdir -p "$OUT"
 LOG="$OUT/rekit_suite.log"
 : > "$LOG"
