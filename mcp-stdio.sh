@@ -11,12 +11,12 @@ export REKIT_BIN="${REKIT_BIN:-$HERE/rekit.py}"
 export REKIT_WORK="${REKIT_WORK:-$HOME/rekit/work}"
 
 need() {
-  echo "  fix: pip install -r requirements-mcp.txt  (or set REKIT_PYTHON=/path/to/python)" >&2
+  echo "  fix: pip install -r requirements-mcp.txt  (this server needs mcp 1.x; mcp 2.x removed mcp.server.fastmcp)" >&2
 }
 
 if [ -n "${REKIT_PYTHON:-}" ]; then
   PY="$REKIT_PYTHON"
-  if ! "$PY" -c 'import mcp' >/dev/null 2>&1; then
+  if ! "$PY" -c 'import mcp.server.fastmcp' >/dev/null 2>&1; then
     echo "mcp-stdio: REKIT_PYTHON=$PY cannot import the 'mcp' package." >&2
     need
     exit 3
@@ -24,7 +24,7 @@ if [ -n "${REKIT_PYTHON:-}" ]; then
 else
   PY=""
   for cand in "$HERE/.venv/bin/python" "$(command -v python3 || true)"; do
-    if [ -n "$cand" ] && [ -x "$cand" ] && "$cand" -c 'import mcp' >/dev/null 2>&1; then
+    if [ -n "$cand" ] && [ -x "$cand" ] && "$cand" -c 'import mcp.server.fastmcp' >/dev/null 2>&1; then
       PY="$cand"
       break
     fi

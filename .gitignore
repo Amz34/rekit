@@ -7,3 +7,5 @@ venv/
 out/
 work/
 *.log
+tests/out/
+tests/results/

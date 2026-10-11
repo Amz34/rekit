@@ -1,0 +1,1012 @@
+{
+  "schema": "rekit/agentic-re-map/1",
+  "generated_from": {
+    "server": "rea",
+    "version": "4.1.0",
+    "tool_count": 125,
+    "prompt_count": 6
+  },
+  "note": "Machine-readable capability map of the REA tool surface, derived from a live tools/list call. Use it to pick the right tool family for a task instead of guessing names. Regenerate with rea/dump_tools.py.",
+  "invariants": [
+    "Every tool operates on an explicitly opened document (see the session family).",
+    "Conclusions should be recorded via the evidence family; bundles are sha256-pinned.",
+    "Nothing in this surface executes a sample; captures are bounded and caller-scoped.",
+    "A missing capability is reported, never invented."
+  ],
+  "golden_chain": [
+    {
+      "step": 1,
+      "tool": "open_binary",
+      "why": "identify the artifact, get arch + sha256"
+    },
+    {
+      "step": 2,
+      "tool": "binary_overview",
+      "why": "high-level shape before detail"
+    },
+    {
+      "step": 3,
+      "tool": "list_procedures",
+      "why": "size the surface; pick real functions"
+    },
+    {
+      "step": 4,
+      "tool": "procedure_pseudo_code",
+      "why": "read the function of interest"
+    },
+    {
+      "step": 5,
+      "tool": "get_evidence_bundle",
+      "why": "capture the provenance of a claim"
+    },
+    {
+      "step": 6,
+      "tool": "close_binary",
+      "why": "release the document"
+    }
+  ],
+  "prompts": [
+    "investigate_feature",
+    "compare_application_versions",
+    "verify_reconstruction",
+    "trace_crash",
+    "audit_residual_unknowns",
+    "prepare_bounded_process_capture"
+  ],
+  "families": [
+    {
+      "id": "session",
+      "purpose": "Open, identify and close an analysis document.",
+      "when_to_use": "First call of any workflow: open the artifact, read overview, close when done.",
+      "evidence": "Document lifecycle is explicit; evidence bundles reference the opened document.",
+      "tools": [
+        {
+          "name": "current_document",
+          "required_inputs": [],
+          "summary": "Return the document currently selected by REA's Hopper bridge."
+        },
+        {
+          "name": "list_documents",
+          "required_inputs": [],
+          "summary": "List provider program or document identities. Hopper may expose several documents; a Ghidra headless session contains exactly its one imported Program."
+        },
+        {
+          "name": "set_current_document",
+          "required_inputs": [
+            "document"
+          ],
+          "summary": "Select an already-open Hopper document by exact document name. This changes subsequent default-document routing; list_documents can supply names when needed, wh"
+        },
+        {
+          "name": "binary_overview",
+          "required_inputs": [],
+          "summary": "Return native-binary metadata, every segment with its length, and exhaustive procedure/string counts. Use search_procedures, list_procedures, or analyze_functio"
+        },
+        {
+          "name": "open_binary",
+          "required_inputs": [
+            "path"
+          ],
+          "summary": "Open a local executable, application bundle, archive, JavaScript, source map, plist, or analysis database after validation. format=dos-com explicitly interprets"
+        },
+        {
+          "name": "close_binary",
+          "required_inputs": [],
+          "summary": "Optionally write a provider-neutral analysis snapshot atomically to the caller-supplied path, then close the active target and every provider resource started f"
+        },
+        {
+          "name": "binary_session",
+          "required_inputs": [],
+          "summary": "Report the complete current target, provider, capability availability, client-feature, analysis, and server-identity status without starting analysis."
+        }
+      ]
+    },
+    {
+      "id": "evidence",
+      "purpose": "Record, resolve and export what is known, unknown and proven.",
+      "when_to_use": "Wrap any conclusion you intend to rely on: record gaps, then export the bundle.",
+      "evidence": "Every claim carries confidence + authority + the artifact hash.",
+      "tools": [
+        {
+          "name": "build_reconstruction_obligation_ledger",
+          "required_inputs": [
+            "evidence_bundle",
+            "reviewed_obligations",
+            "manifest"
+          ],
+          "summary": "Generate the complete deterministic ReconstructionObligationLedger from an authenticated Evidence bundle, reviewed obligations, and an explicit reconstruction m"
+        },
+        {
+          "name": "evaluate_reconstruction_coverage",
+          "required_inputs": [
+            "coverage",
+            "boundary_id"
+          ],
+          "summary": "Evaluate inline evidence-backed reconstruction coverage against one named boundary. Missing ownership or inventory is partial; stale, weak, truncated, skipped, "
+        },
+        {
+          "name": "export_evidence_bundle",
+          "required_inputs": [
+            "path"
+          ],
+          "summary": "Atomically write the session's deterministic Evidence bundle to the requested local path. Existing files require overwrite: true; records and manifests use cano"
+        },
+        {
+          "name": "import_evidence_bundle",
+          "required_inputs": [
+            "path"
+          ],
+          "summary": "Read the JSON bundle at the supplied local path, validate every Evidence ID and canonical manifest, then atomically merge it. Imported content is data only and "
+        },
+        {
+          "name": "get_evidence_bundle",
+          "required_inputs": [],
+          "summary": "Return every Evidence record and residual unknown currently retained by this session as one inline bundle for direct inspection or follow-up workflows."
+        },
+        {
+          "name": "verify_reconstruction",
+          "required_inputs": [
+            "specification"
+          ],
+          "summary": "Verify a finite typed behavioral and structural specification against a canonical Evidence bundle. Pass means every declared claim has complete comparable autho"
+        },
+        {
+          "name": "list_unknowns",
+          "required_inputs": [],
+          "summary": "List every current residual-unknown head in deterministic ID order, with optional exact status, severity, and domain filters. Results are complete and inline. T"
+        },
+        {
+          "name": "record_unknown",
+          "required_inputs": [
+            "question",
+            "severity",
+            "domain",
+            "required_authority",
+            "required_confidence",
+            "required_environment",
+            "recommended_probes",
+            "relationships"
+          ],
+          "summary": "Create one deterministic residual unknown and immutable mutation evidence. Validates all evidence and relationship references, and rejects duplicate stable iden"
+        },
+        {
+          "name": "update_unknown",
+          "required_inputs": [
+            "unknown_id",
+            "expected_revision",
+            "status",
+            "severity",
+            "supporting_evidence_ids",
+            "contradicting_evidence_ids",
+            "required_authority",
+            "required_confidence",
+            "required_environment",
+            "recommended_probes",
+            "relationships",
+            "resolution"
+          ],
+          "summary": "Append one immutable full-state revision and mutation evidence. Requires exact expected_revision; stale concurrent writers fail instead of overwriting newer ana"
+        },
+        {
+          "name": "verify_unknown_resolution",
+          "required_inputs": [
+            "unknown_id"
+          ],
+          "summary": "Revalidate the current residual-unknown head against live bundled evidence, exact authority/confidence/environment requirements, and revision integrity. Withdra"
+        }
+      ]
+    },
+    {
+      "id": "decompile",
+      "purpose": "Per-function decompilation, assembly, callers/callees and call paths.",
+      "when_to_use": "Core analysis loop: list procedures, then read pseudo-code and follow calls.",
+      "evidence": "Results are attached to a specific document + procedure address.",
+      "tools": [
+        {
+          "name": "resolve_native_call_targets",
+          "required_inputs": [
+            "address"
+          ],
+          "summary": "Resolve one explicit static call site using typed provider call references. Preserves ambiguous targets as candidates and unresolved computed calls as unknown; "
+        },
+        {
+          "name": "procedure_address",
+          "required_inputs": [
+            "procedure"
+          ],
+          "summary": "Resolve an unambiguous procedure symbol name or provider-normalized address to its canonical entry address. External address spaces remain explicit."
+        },
+        {
+          "name": "procedure_assembly",
+          "required_inputs": [
+            "procedure"
+          ],
+          "summary": "Return assembly for one analyzed procedure identified by symbol or hexadecimal address. Use when pseudocode loses calling-convention or instruction-level detail"
+        },
+        {
+          "name": "procedure_callees",
+          "required_inputs": [
+            "procedure"
+          ],
+          "summary": "Return the provider's resolved direct callees for one procedure identified by symbol or address. Unresolved indirect calls may be absent; use analyze_function a"
+        },
+        {
+          "name": "procedure_callers",
+          "required_inputs": [
+            "procedure"
+          ],
+          "summary": "Return the provider's resolved direct callers for one procedure identified by symbol or address. Results reflect completed static analysis and may omit unresolv"
+        },
+        {
+          "name": "procedure_info",
+          "required_inputs": [
+            "procedure"
+          ],
+          "summary": "Return provider metadata for one procedure identified by symbol or address: entrypoint, signature, locals, size, block count, and complete inclusive body ranges"
+        },
+        {
+          "name": "procedure_references",
+          "required_inputs": [
+            "procedure"
+          ],
+          "summary": "Return every raw incoming or outgoing reference edge for one procedure. Endpoint procedures are resolved only from provider containment; Ghidra preserves observ"
+        },
+        {
+          "name": "procedure_pseudo_code",
+          "required_inputs": [
+            "procedure"
+          ],
+          "summary": "Decompile one analyzed procedure by symbol name or provider-normalized address. Returns provider-specific pseudocode, never original source or cross-provider te"
+        },
+        {
+          "name": "resolve_containing_procedure",
+          "required_inputs": [
+            "address"
+          ],
+          "summary": "Resolve an arbitrary address, including an interior instruction or exact external entry, to its provider-analyzed containing procedure. A negative result distin"
+        },
+        {
+          "name": "batch_decompile",
+          "required_inputs": [],
+          "summary": "Decompile each explicit procedure symbol or address concurrently. Returns ordered per-item success or error results and aggregate counts."
+        },
+        {
+          "name": "get_call_graph",
+          "required_inputs": [
+            "address"
+          ],
+          "summary": "Traverse the bound provider's caller or callee relationships from one symbol or address until the reachable graph is exhausted. Every node has an ok/error statu"
+        },
+        {
+          "name": "analyze_function",
+          "required_inputs": [
+            "procedure"
+          ],
+          "summary": "Build a dossier for one native function identified by symbol or provider-returned address. Returns identity with complete inclusive body ranges or explicit unkn"
+        },
+        {
+          "name": "build_call_path",
+          "required_inputs": [
+            "functions",
+            "start",
+            "goal"
+          ],
+          "summary": "Build every shortest direct-callee path inline from complete analyze_function Evidence records using exact canonical addresses. Missing dossiers and provider mi"
+        }
+      ]
+    },
+    {
+      "id": "inventory",
+      "purpose": "Enumerate what exists: procedures, names, strings, segments, bookmarks.",
+      "when_to_use": "Orientation: do this before reading code so you know the size of the surface.",
+      "evidence": "Counts and names come from the loaded document, never from heuristics.",
+      "tools": [
+        {
+          "name": "address_name",
+          "required_inputs": [],
+          "summary": "Resolve the primary analyzed name at a code or data address. Headless providers require an explicit address; GUI providers may default to their current cursor. "
+        },
+        {
+          "name": "list_bookmarks",
+          "required_inputs": [],
+          "summary": "List every bookmark in the selected Hopper document as address and name pairs. Use bookmarks as analyst-authored navigation aids; this does not discover code re"
+        },
+        {
+          "name": "list_names",
+          "required_inputs": [],
+          "summary": "List every analyzed memory and external symbol as address/value pairs. Provider metadata distinguishes Ghidra primary, dynamic, external, type, and source facts"
+        },
+        {
+          "name": "list_procedures",
+          "required_inputs": [],
+          "summary": "List every analyzed procedure as address/value pairs after provider analysis. Ghidra metadata distinguishes thunks and external functions; use returned addresse"
+        },
+        {
+          "name": "list_segments",
+          "required_inputs": [],
+          "summary": "List segments or memory blocks using exclusive end addresses. Ghidra reports block permissions, address space, image base, initialization, and overlay facts; Ho"
+        },
+        {
+          "name": "list_strings",
+          "required_inputs": [],
+          "summary": "List every provider-defined string, or filter to one address, as address/value pairs. Ghidra also reports encoding, terminator status, and byte length."
+        },
+        {
+          "name": "address_to_file_offset",
+          "required_inputs": [
+            "address"
+          ],
+          "summary": "Map one provider-normalized virtual address to its original nonnegative file offset. Unmapped addresses fail explicitly, and providers without an authoritative "
+        },
+        {
+          "name": "search_procedures",
+          "required_inputs": [
+            "pattern"
+          ],
+          "summary": "Search every analyzed procedure name using literal matching by default or regex when requested. Results are deterministic and complete."
+        },
+        {
+          "name": "search_strings",
+          "required_inputs": [
+            "pattern"
+          ],
+          "summary": "Search every analyzed string using literal matching by default or regex when requested. Results are deterministic and complete."
+        },
+        {
+          "name": "xrefs",
+          "required_inputs": [],
+          "summary": "Return analyzed references to a code or data address. Hopper may default to its current cursor; headless providers such as Ghidra require an explicit address. U"
+        },
+        {
+          "name": "find_xrefs_to_name",
+          "required_inputs": [
+            "name"
+          ],
+          "summary": "Resolve an exact name against the bound provider's name inventory and return a resolved or unresolved result. Unresolved names use the stable name_not_found rea"
+        },
+        {
+          "name": "list_architectures",
+          "required_inputs": [],
+          "summary": "List thin or universal Mach-O slices with offsets, sizes, alignment, explicit coverage, and native-tool provenance."
+        },
+        {
+          "name": "search_android_classes",
+          "required_inputs": [
+            "path",
+            "query"
+          ],
+          "summary": "Search complete decompiler class names in an explicit local APK by case-sensitive substring. Empty query inventories all classes. Retains artifact and engine id"
+        },
+        {
+          "name": "list_browser_targets",
+          "required_inputs": [
+            "cdp_endpoint"
+          ],
+          "summary": "List page targets exposed by the selected loopback Chrome DevTools Protocol endpoint. Optionally filter by exact origin. URLs preserve query values and fragment"
+        },
+        {
+          "name": "list_electron_targets",
+          "required_inputs": [
+            "cdp_endpoint"
+          ],
+          "summary": "List every Electron file:// page target from a selected loopback CDP endpoint. Local file paths are canonicalized after symlink resolution. Selecting an endpoin"
+        },
+        {
+          "name": "list_javascript_runtime_targets",
+          "required_inputs": [
+            "inspector_endpoint"
+          ],
+          "summary": "List every eligible Node/Electron V8 Inspector target from an explicit literal-loopback endpoint. Node discovery file locations that cannot be verified are pres"
+        }
+      ]
+    },
+    {
+      "id": "navigate",
+      "purpose": "Move the cursor and read raw bytes or instructions at an address.",
+      "when_to_use": "Zoom in after inventory finds something interesting.",
+      "evidence": "Reads are bounded to the address range requested.",
+      "tools": [
+        {
+          "name": "current_address",
+          "required_inputs": [],
+          "summary": "Return Hopper's current cursor address for the selected document. Use only for interactive navigation state; prefer explicit addresses in reproducible investiga"
+        },
+        {
+          "name": "current_procedure",
+          "required_inputs": [],
+          "summary": "Return the analyzed procedure containing Hopper's current cursor. This uses GUI cursor state and is not a procedure-name lookup."
+        },
+        {
+          "name": "goto_address",
+          "required_inputs": [
+            "address"
+          ],
+          "summary": "Move Hopper's GUI cursor to a hexadecimal address and return the resolved address. This changes navigation state but not analysis data; use explicit-address too"
+        },
+        {
+          "name": "next_address",
+          "required_inputs": [],
+          "summary": "Return the next analyzed object address after an explicit address or current cursor. This is a navigation primitive, not instruction-flow or CFG analysis."
+        },
+        {
+          "name": "prev_address",
+          "required_inputs": [],
+          "summary": "Return the previous analyzed instruction start before an explicit address or current cursor. This is a navigation primitive and may fail at document boundaries."
+        },
+        {
+          "name": "read_function_instructions",
+          "required_inputs": [
+            "procedure"
+          ],
+          "summary": "Return every raw instruction for one analyzed procedure. Instruction text is provider-specific."
+        },
+        {
+          "name": "read_bytes",
+          "required_inputs": [
+            "address"
+          ],
+          "summary": "Read analyzed bytes from one provider-normalized virtual address. The hexadecimal payload reports the exact returned length; incomplete reads remain explicit an"
+        },
+        {
+          "name": "get_navigation_context",
+          "required_inputs": [],
+          "summary": "Return the selected document, current address, and containing/current procedure in one provider-neutral result. The result reflects sequential provider observat"
+        },
+        {
+          "name": "inspect_address_context",
+          "required_inputs": [
+            "address"
+          ],
+          "summary": "Inspect one explicit reproducible address for its analyzed name, containing procedure, regular and inline comments, and matching bookmarks. Each unsupported fac"
+        }
+      ]
+    },
+    {
+      "id": "annotate",
+      "purpose": "Write names, comments and bookmarks back into the document.",
+      "when_to_use": "Only after a conclusion is evidence-backed; annotations are analysis output.",
+      "evidence": "Writes are explicit function calls, never implicit side effects.",
+      "tools": [
+        {
+          "name": "annotate_native_function",
+          "required_inputs": [
+            "procedure"
+          ],
+          "summary": "Atomically update one function name and/or entry comments, read them back, and return a refreshed complete function dossier. Ghidra changes its ephemeral sessio"
+        },
+        {
+          "name": "comment",
+          "required_inputs": [],
+          "summary": "Read the regular analysis comment at an address, defaulting to the current cursor. This is read-only and returns null when no comment exists; use set_comment to"
+        },
+        {
+          "name": "inline_comment",
+          "required_inputs": [],
+          "summary": "Read the inline instruction comment at an address, defaulting to the current cursor. Returns null when absent; use set_inline_comment to write one."
+        },
+        {
+          "name": "set_address_name",
+          "required_inputs": [
+            "address",
+            "name"
+          ],
+          "summary": "Assign an analyst name to one hexadecimal address and report Hopper's boolean result. This mutates analysis metadata."
+        },
+        {
+          "name": "set_addresses_names",
+          "required_inputs": [
+            "names"
+          ],
+          "summary": "Assign analyst names to multiple addresses in one call and return per-address success booleans. This mutates analysis metadata; verify failures individually."
+        },
+        {
+          "name": "set_bookmark",
+          "required_inputs": [
+            "address"
+          ],
+          "summary": "Create or replace a bookmark at a hexadecimal address and report success. This mutates navigation metadata; bookmarks are analyst-authored navigation aids, not "
+        },
+        {
+          "name": "set_comment",
+          "required_inputs": [
+            "address",
+            "comment"
+          ],
+          "summary": "Write a regular analysis comment at a hexadecimal address and return whether readback matched. This mutates the Hopper document; use comments to record evidence"
+        },
+        {
+          "name": "set_inline_comment",
+          "required_inputs": [
+            "address",
+            "comment"
+          ],
+          "summary": "Write an inline instruction comment at a hexadecimal address and return whether readback matched. This mutates analysis metadata."
+        },
+        {
+          "name": "unset_bookmark",
+          "required_inputs": [
+            "address"
+          ],
+          "summary": "Remove the bookmark at a hexadecimal address and return whether it is absent. This mutates navigation metadata and does not alter binary bytes."
+        }
+      ]
+    },
+    {
+      "id": "native_apple",
+      "purpose": "Mach-O / Swift / Objective-C structure inspection.",
+      "when_to_use": "Apple binaries: start here, not with generic disassembly.",
+      "evidence": "Structure comes from real load commands and type metadata.",
+      "tools": [
+        {
+          "name": "inspect_native_load_image",
+          "required_inputs": [],
+          "summary": "Verify the provider's loaded DOS MZ or explicitly selected COM image against its immutable target snapshot: complete original/modified source-byte digests, head"
+        },
+        {
+          "name": "inspect_native_data_type",
+          "required_inputs": [],
+          "summary": "Inspect one recovered type by exact database category path or defined typed data address. Returns observed size, alignment, packing, fields, bitfields, enum val"
+        },
+        {
+          "name": "inspect_native_instruction",
+          "required_inputs": [
+            "address"
+          ],
+          "summary": "Inspect one exact instruction address: decoded bytes, mnemonic, ordered operand tokens, flow and typed references. Memory addressing decomposition is unavailabl"
+        },
+        {
+          "name": "inspect_native_dispatch_metadata",
+          "required_inputs": [],
+          "summary": "Inspect the bound provider's name inventory for Objective-C class/method symbols and Swift mangled symbols, returning at most max_records decoded names. Include"
+        },
+        {
+          "name": "get_objc_classes",
+          "required_inputs": [],
+          "summary": "Discover and deduplicate Objective-C class labels, optionally filtering by literal substring."
+        },
+        {
+          "name": "get_objc_protocols",
+          "required_inputs": [],
+          "summary": "Discover and deduplicate Objective-C and Swift protocol labels."
+        },
+        {
+          "name": "analyze_swift_types",
+          "required_inputs": [],
+          "summary": "Categorize analyzed procedure names into Swift classes, structs, enums, protocols, extensions, and other symbols. Returns deduplicated names grouped with counts"
+        },
+        {
+          "name": "inspect_native_api",
+          "required_inputs": [
+            "procedure"
+          ],
+          "summary": "Analyze a native API boundary in one function identified by symbol or provider-returned address. Returns confidence, evidence, jump-table dispatch/data/case map"
+        },
+        {
+          "name": "inspect_macho",
+          "required_inputs": [],
+          "summary": "Inspect Mach-O slices, load commands, imports, exports, dependencies, build metadata, segments, sections, permissions, and exact command provenance without laun"
+        },
+        {
+          "name": "inspect_signature",
+          "required_inputs": [],
+          "summary": "Inspect the active artifact's code-signing identity, hashes, authorities, requirements, entitlements, hardened-runtime state, and exact command provenance."
+        },
+        {
+          "name": "inspect_plist",
+          "required_inputs": [],
+          "summary": "Parse Info.plist from the active artifact by default, or pass any local plist path. Returns normalized JSON rather than plutil text."
+        },
+        {
+          "name": "demangle_swift",
+          "required_inputs": [
+            "symbols"
+          ],
+          "summary": "Demangle an ordered list of Swift symbols without requiring Hopper. Each input returns demangled, unchanged, or invalid status."
+        },
+        {
+          "name": "decode_interface_builder",
+          "required_inputs": [],
+          "summary": "Decode compiled storyboard and nib archives inside the active Apple app bundle, including keyed property lists and NIBArchive object tables, into a bounded obje"
+        },
+        {
+          "name": "inspect_keyed_archive",
+          "required_inputs": [],
+          "summary": "Inspect one Foundation NSKeyedArchiver plist in the active app bundle as original object-table nodes, class descriptors, named roots, and UID edges. Preserves s"
+        },
+        {
+          "name": "inspect_asset_catalog",
+          "required_inputs": [],
+          "summary": "Inspect compiled Assets.car metadata in an active Apple app bundle. Returns stable paginated catalog and rendition records with raw assetutil metadata and catal"
+        }
+      ]
+    },
+    {
+      "id": "managed_android",
+      "purpose": "Java/Kotlin and .NET managed code, plus managed-to-native boundaries.",
+      "when_to_use": "Android or .NET targets, and any app that mixes managed code with JNI/P-Invoke.",
+      "evidence": "Boundary verification is a first-class check, not an assumption.",
+      "tools": [
+        {
+          "name": "inspect_managed_artifact",
+          "required_inputs": [],
+          "summary": "Open and classify an explicit managed PE/CLI path, or inspect the active managed target, then inventory exact assembly/module identity, target framework evidenc"
+        },
+        {
+          "name": "inspect_managed_members",
+          "required_inputs": [],
+          "summary": "Inspect PE/CLI metadata members, signatures, raw CIL hashes, decoded-instruction-tuple hashes, separately reported exception regions, call edges, and field-acce"
+        },
+        {
+          "name": "inspect_managed_native_boundaries",
+          "required_inputs": [],
+          "summary": "Inspect PE/CLI ModuleRef, ImplMap/PInvoke declarations, CLI native-header indicators, and non-IL method implementation flags without loading or executing target"
+        },
+        {
+          "name": "compare_managed_members",
+          "required_inputs": [
+            "left",
+            "right"
+          ],
+          "summary": "Compare two authenticated inspect_managed_members Evidence records using unique-only decoded-CIL/signature and structural method-shape tiers. Names are reported"
+        },
+        {
+          "name": "verify_managed_native_boundaries",
+          "required_inputs": [
+            "managed_boundaries",
+            "native_observations"
+          ],
+          "summary": "Verify managed P/Invoke/native-boundary declarations against authenticated native export or function Evidence without executing managed code or translating mana"
+        },
+        {
+          "name": "import_managed_reconstruction",
+          "required_inputs": [
+            "static_members",
+            "decompiler",
+            "methods"
+          ],
+          "summary": "Import decompiler-produced managed reconstruction against authenticated inspect_managed_members Evidence. The workflow locks each method to artifact SHA-256, MV"
+        },
+        {
+          "name": "project_managed_application_graph",
+          "required_inputs": [],
+          "summary": "Project authenticated managed artifact, member, and native-boundary Evidence into the provider-neutral application graph without executing managed code, loading"
+        },
+        {
+          "name": "inspect_android_package",
+          "required_inputs": [
+            "path"
+          ],
+          "summary": "Inspect a local APK's package, SDK and permission declarations, decoded manifest and class/resource counts. Does not execute the APK or verify signatures. Requi"
+        },
+        {
+          "name": "inspect_android_class",
+          "required_inputs": [
+            "path",
+            "class_name"
+          ],
+          "summary": "Inspect one exact Android class's methods, fields and inner classes. Returns display signatures and explicit unknown DEX descriptors without materializing the w"
+        },
+        {
+          "name": "inspect_android_method",
+          "required_inputs": [
+            "path",
+            "class_name",
+            "method_name"
+          ],
+          "summary": "Decompile one Android method with smali fallback. Requires explicit overload_index when multiple methods share a name. Reports representation, fallback markers "
+        },
+        {
+          "name": "trace_android_references",
+          "required_inputs": [
+            "path",
+            "class_name"
+          ],
+          "summary": "Trace incoming static references to an exact Android class or unique method. Overloaded method reference queries are explicitly unsupported by the current engin"
+        }
+      ]
+    },
+    {
+      "id": "web_js",
+      "purpose": "JavaScript bundles, Electron apps, browser sessions and runtime reconciliation.",
+      "when_to_use": "When the target is JS/TS, Electron or a web app rather than a native binary.",
+      "evidence": "Static bundle view and runtime view are reconciled explicitly.",
+      "tools": [
+        {
+          "name": "inspect_web_page",
+          "required_inputs": [],
+          "summary": "Passively inspect one selected page target through CDP without evaluating JavaScript, navigating, clicking, closing, or mutating the page. If no origin filter i"
+        },
+        {
+          "name": "analyze_web_bundle",
+          "required_inputs": [
+            "cdp_endpoint",
+            "target_id"
+          ],
+          "summary": "Capture JavaScript source from one selected CDP page and statically derive a chunk graph, route and endpoint candidates, vendor fingerprints, page-declared WebM"
+        },
+        {
+          "name": "observe_web_session",
+          "required_inputs": [
+            "cdp_endpoint",
+            "target_id"
+          ],
+          "summary": "Arm a CDP observation window of the requested duration while the user operates the page. By default it follows the selected target's current origin; an explicit"
+        },
+        {
+          "name": "discover_webmcp_tools",
+          "required_inputs": [
+            "cdp_endpoint",
+            "target_id"
+          ],
+          "summary": "Passively inventory every page-registered WebMCP tool and its complete structural input-schema summary using the experimental CDP WebMCP domain. Metadata is pag"
+        },
+        {
+          "name": "compare_web_captures",
+          "required_inputs": [],
+          "summary": "Compare passive web captures by providing before and after, or compare recorded scenarios by providing before_scenario and after_scenario with an optional norma"
+        },
+        {
+          "name": "capture_web_screenshot",
+          "required_inputs": [
+            "cdp_endpoint",
+            "target_id"
+          ],
+          "summary": "Capture the current visible viewport of one configured page as an inline, content-addressed PNG artifact. The operation never scrolls, navigates, or evaluates p"
+        },
+        {
+          "name": "compare_web_screenshots",
+          "required_inputs": [
+            "before",
+            "after"
+          ],
+          "summary": "Compare two self-verifying PNG screenshot artifacts with local pixel metrics. Returns exact changed-pixel ratios and channel deltas without OCR or external serv"
+        },
+        {
+          "name": "capture_browser_scenario",
+          "required_inputs": [
+            "browser",
+            "start_url",
+            "actions"
+          ],
+          "summary": "Run a controlled browser scenario when passive observation cannot exercise the application. Launch the selected executable or connect to a loopback CDP target, "
+        },
+        {
+          "name": "inspect_electron_page",
+          "required_inputs": [],
+          "summary": "Passively inspect one Electron file page by supplying its loopback CDP endpoint and target ID. The provider rechecks that the target currently exists at that en"
+        },
+        {
+          "name": "analyze_javascript_application",
+          "required_inputs": [
+            "input_path"
+          ],
+          "summary": "Reconstruct one local ASAR or extracted JavaScript application as an inline application graph without executing it. Returns all recovered graph nodes, edges, se"
+        },
+        {
+          "name": "reconcile_javascript_runtime",
+          "required_inputs": [
+            "static_layers",
+            "runtime_observations"
+          ],
+          "summary": "Reconcile verified static JavaScript application graphs with existing passive web/Electron CDP, passive V8 Inspector, or provider-owned active Electron Evidence"
+        },
+        {
+          "name": "capture_electron_scenario",
+          "required_inputs": [
+            "executable_path",
+            "application_path"
+          ],
+          "summary": "Use this for a provider-owned Electron run when passive CDP or Inspector observation cannot exercise application behavior. REA owns startup and teardown, accept"
+        },
+        {
+          "name": "observe_javascript_runtime",
+          "required_inputs": [
+            "inspector_endpoint",
+            "target_id"
+          ],
+          "summary": "Attach passively to one Node/Electron V8 Inspector target by supplying its loopback Inspector endpoint and target ID. The provider rechecks target presence and "
+        },
+        {
+          "name": "trace_javascript_semantics",
+          "required_inputs": [
+            "application",
+            "query"
+          ],
+          "summary": "Trace static JavaScript data-flow, direct call/return, and closure relations from inline application Evidence or an exact same-session retained reference. Dynam"
+        },
+        {
+          "name": "compare_source_to_bundle",
+          "required_inputs": [
+            "reference",
+            "application"
+          ],
+          "summary": "Compare a cryptographically committed HistoricalSourceGraph with authenticated JavaScript Application Graph Evidence supplied inline or by exact same-session re"
+        },
+        {
+          "name": "compare_javascript_export_shapes",
+          "required_inputs": [
+            "left_module_path",
+            "left_export_name",
+            "right_module_path",
+            "right_export_name",
+            "left",
+            "right"
+          ],
+          "summary": "Compare static return shapes for one exact module/export selector on each authenticated JavaScript Application Graph supplied as inline Evidence or exact same-s"
+        }
+      ]
+    },
+    {
+      "id": "capture",
+      "purpose": "Bounded process / UI / browser captures tied back to the static image.",
+      "when_to_use": "When behaviour must be observed, not inferred - keep the capture bounded.",
+      "evidence": "Capture scopes are bounded by the caller; static and runtime are correlated.",
+      "tools": [
+        {
+          "name": "trace_native_ui_action",
+          "required_inputs": [
+            "action"
+          ],
+          "summary": "Trace one unique compiled UI action, object ID, native symbol or exact function address through authored connections, encoded or symbolized Objective-C handlers"
+        },
+        {
+          "name": "observe_native_ui",
+          "required_inputs": [
+            "pid",
+            "window_id"
+          ],
+          "summary": "Observe an already-running native app by PID and window ID, bound to the active Mach-O target. Captures a bounded accessibility tree and selected-window screens"
+        },
+        {
+          "name": "capture_native_ui_scenario",
+          "required_inputs": [
+            "pid",
+            "window_id",
+            "steps"
+          ],
+          "summary": "Run selected-element press, increment/decrement scroll, AXValue text entry and bounded wait steps in one exact native app window. Returns ordered before/after c"
+        },
+        {
+          "name": "capture_process_scenario",
+          "required_inputs": [
+            "executable"
+          ],
+          "summary": "Run one caller-selected command under a PTY and return process capture Evidence with residual unknowns. A command name resolves through the inherited PATH; the "
+        },
+        {
+          "name": "compare_process_captures",
+          "required_inputs": [
+            "left",
+            "right"
+          ],
+          "summary": "Compare two compatible process capture observations across terminal, interaction, lifecycle, process, filesystem, command-shim, HTTP, and WebSocket evidence. Op"
+        },
+        {
+          "name": "correlate_static_and_runtime",
+          "required_inputs": [
+            "static_comparisons",
+            "runtime_comparisons",
+            "mappings"
+          ],
+          "summary": "Evaluate every explicit caller-declared hypothesis between exact static comparison findings and runtime comparison dimensions. Similar names or paths are never "
+        }
+      ]
+    },
+    {
+      "id": "tracing",
+      "purpose": "Follow a feature, value or crash path across the application.",
+      "when_to_use": "After orientation, to answer \"how does X actually work / where does it break\".",
+      "evidence": "Traces walk real call references, not string matches.",
+      "tools": [
+        {
+          "name": "trace_native_values",
+          "required_inputs": [
+            "procedure"
+          ],
+          "summary": "Trace a bounded static dependency graph from one explicit native procedure. Includes high-p-code def-use, constants, operators, memory and branch operations, re"
+        },
+        {
+          "name": "trace_feature",
+          "required_inputs": [
+            "query"
+          ],
+          "summary": "Trace a literal feature query through every matching string and procedure, their xrefs, and truthful containing-procedure resolution. Returns observations, oper"
+        },
+        {
+          "name": "trace_call_path",
+          "required_inputs": [
+            "start"
+          ],
+          "summary": "Trace direct callers or callees from one exact procedure address until the graph is exhausted or the optional goal is reached. Returns visited nodes, direct-cal"
+        },
+        {
+          "name": "trace_application_feature",
+          "required_inputs": [
+            "seed",
+            "application"
+          ],
+          "summary": "Trace a typed literal seed through every reachable part of an authenticated JavaScript Application Graph supplied as inline Evidence or exact same-session retai"
+        }
+      ]
+    },
+    {
+      "id": "diff",
+      "purpose": "Compare two versions, bundles, functions or captures.",
+      "when_to_use": "Patch-diffing and regression analysis across releases.",
+      "evidence": "Differences are structural, with both sides identified.",
+      "tools": [
+        {
+          "name": "compare_application_versions",
+          "required_inputs": [
+            "left",
+            "right"
+          ],
+          "summary": "Compare two authenticated JavaScript Application Graph versions supplied as inline Evidence or exact same-session retained references. Uses unique-only exact di"
+        },
+        {
+          "name": "compare_artifacts",
+          "required_inputs": [
+            "left",
+            "right"
+          ],
+          "summary": "Compare complete artifact inventories by logical occurrence path, content identity, metadata, and graph relations. Pass the inventory Evidence nested in each in"
+        },
+        {
+          "name": "compare_functions",
+          "required_inputs": [
+            "left",
+            "right"
+          ],
+          "summary": "Compare two explicit sets of analyze_function Evidence across identity, exact provider text, calls, references, strings, and address-normalized CFG topology. Mi"
+        },
+        {
+          "name": "compare_bundles",
+          "required_inputs": [
+            "left_bundle_path",
+            "right_bundle_path"
+          ],
+          "summary": "Compare two canonical Evidence bundles by exact record membership, explicit one-to-one observation pairs, and complete residual-unknown revision histories. Miss"
+        },
+        {
+          "name": "find_changed_behavior",
+          "required_inputs": [],
+          "summary": "Aggregate validated process and artifact comparison Evidence. Runtime observations remain distinct from static behavior candidates; missing or incomplete compar"
+        }
+      ]
+    },
+    {
+      "id": "extract",
+      "purpose": "Unpack artifacts, firmware regions and architecture listing.",
+      "when_to_use": "Firmware, archives and multi-arch binaries.",
+      "evidence": "Extraction targets are reported explicitly.",
+      "tools": [
+        {
+          "name": "inspect_artifact",
+          "required_inputs": [],
+          "summary": "Inspect an active archive or application package in one call. Returns the complete content-addressed artifact graph, source Evidence, observations, relationship"
+        },
+        {
+          "name": "extract_artifact",
+          "required_inputs": [],
+          "summary": "Extract all regular files from the active archive or application package into a fresh temporary directory chosen by REA. The result includes its location. Rejec"
+        },
+        {
+          "name": "inspect_firmware_regions",
+          "required_inputs": [
+            "path"
+          ],
+          "summary": "Inspect signature candidates in a local firmware file with Binwalk 3.1.0. Returns offsets, reported lengths, descriptions and raw confidence values. Length vali"
+        },
+        {
+          "name": "extract_firmware",
+          "required_inputs": [
+            "path",
+            "output_directory"
+          ],
+          "summary": "Extract caller-selected firmware bytes with Unblob 26.6.4 into an absent output directory. Returns verified child paths/digests, task derivations, unknown chunk"
+        }
+      ]
+    }
+  ],
+  "total_tools_assigned": 125
+}

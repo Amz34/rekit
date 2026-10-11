@@ -1,0 +1,1415 @@
+{
+  "server": "rea",
+  "version": "4.1.0",
+  "tool_count": 125,
+  "prompt_count": 6,
+  "prompts": [
+    "investigate_feature",
+    "compare_application_versions",
+    "verify_reconstruction",
+    "trace_crash",
+    "audit_residual_unknowns",
+    "prepare_bounded_process_capture"
+  ],
+  "tools": [
+    {
+      "name": "annotate_native_function",
+      "description": "Atomically update one function name and/or entry comments, read them back, and return a refreshed complete function dossier. Ghidra changes its ephemeral session analysis database only; original executable bytes remain unchanged. Empty comment text clears that comment. Edits remain available to subsequent MCP calls until close; CLI returns the updated dossier before discarding its session. Invalid edits roll back the entire operation. Windows P0 and providers without this capability are unsupported.",
+      "required": [
+        "procedure"
+      ],
+      "properties": [
+        "procedure",
+        "name",
+        "comment",
+        "inline_comment"
+      ]
+    },
+    {
+      "name": "inspect_native_load_image",
+      "description": "Verify the provider's loaded DOS MZ or explicitly selected COM image against its immutable target snapshot: complete original/modified source-byte digests, header/module file mappings and memory digests, relocations and external entry. Returns measured observations and independent checks with mismatch coordinates. COM verification includes its imposed entry register context and does not claim PSP/runtime coverage. Overlay and uninitialized coverage remain explicit; other formats return unsupported. Does not execute or modify the target.",
+      "required": [],
+      "properties": []
+    },
+    {
+      "name": "inspect_native_data_type",
+      "description": "Inspect one recovered type by exact database category path or defined typed data address. Returns observed size, alignment, packing, fields, bitfields, enum values, and child type identities; source-level authority and flexible-tail semantics remain unknown unless substantiated.",
+      "required": [],
+      "properties": [
+        "type",
+        "address",
+        "document"
+      ]
+    },
+    {
+      "name": "inspect_native_instruction",
+      "description": "Inspect one exact instruction address: decoded bytes, mnemonic, ordered operand tokens, flow and typed references. Memory addressing decomposition is unavailable when the provider supplies only tokens. Data, interior instruction addresses and undecodable bytes are distinct outcomes.",
+      "required": [
+        "address"
+      ],
+      "properties": [
+        "address",
+        "document"
+      ]
+    },
+    {
+      "name": "resolve_native_call_targets",
+      "description": "Resolve one explicit static call site using typed provider call references. Preserves ambiguous targets as candidates and unresolved computed calls as unknown; does not execute code or traverse a call graph.",
+      "required": [
+        "address"
+      ],
+      "properties": [
+        "address",
+        "document"
+      ]
+    },
+    {
+      "name": "address_name",
+      "description": "Resolve the primary analyzed name at a code or data address. Headless providers require an explicit address; GUI providers may default to their current cursor. Null means the provider has no primary name at that address.",
+      "required": [],
+      "properties": [
+        "document",
+        "address"
+      ]
+    },
+    {
+      "name": "comment",
+      "description": "Read the regular analysis comment at an address, defaulting to the current cursor. This is read-only and returns null when no comment exists; use set_comment to persist a finding.",
+      "required": [],
+      "properties": [
+        "document",
+        "address"
+      ]
+    },
+    {
+      "name": "current_address",
+      "description": "Return Hopper's current cursor address for the selected document. Use only for interactive navigation state; prefer explicit addresses in reproducible investigations.",
+      "required": [],
+      "properties": [
+        "document"
+      ]
+    },
+    {
+      "name": "current_procedure",
+      "description": "Return the analyzed procedure containing Hopper's current cursor. This uses GUI cursor state and is not a procedure-name lookup.",
+      "required": [],
+      "properties": [
+        "document"
+      ]
+    },
+    {
+      "name": "current_document",
+      "description": "Return the document currently selected by REA's Hopper bridge.",
+      "required": [],
+      "properties": []
+    },
+    {
+      "name": "goto_address",
+      "description": "Move Hopper's GUI cursor to a hexadecimal address and return the resolved address. This changes navigation state but not analysis data; use explicit-address tools for headless workflows.",
+      "required": [
+        "address"
+      ],
+      "properties": [
+        "address",
+        "document"
+      ]
+    },
+    {
+      "name": "inline_comment",
+      "description": "Read the inline instruction comment at an address, defaulting to the current cursor. Returns null when absent; use set_inline_comment to write one.",
+      "required": [],
+      "properties": [
+        "document",
+        "address"
+      ]
+    },
+    {
+      "name": "list_bookmarks",
+      "description": "List every bookmark in the selected Hopper document as address and name pairs. Use bookmarks as analyst-authored navigation aids; this does not discover code references.",
+      "required": [],
+      "properties": [
+        "document"
+      ]
+    },
+    {
+      "name": "list_documents",
+      "description": "List provider program or document identities. Hopper may expose several documents; a Ghidra headless session contains exactly its one imported Program.",
+      "required": [],
+      "properties": []
+    },
+    {
+      "name": "list_names",
+      "description": "List every analyzed memory and external symbol as address/value pairs. Provider metadata distinguishes Ghidra primary, dynamic, external, type, and source facts when available.",
+      "required": [],
+      "properties": [
+        "document",
+        "address"
+      ]
+    },
+    {
+      "name": "list_procedures",
+      "description": "List every analyzed procedure as address/value pairs after provider analysis. Ghidra metadata distinguishes thunks and external functions; use returned addresses in later function operations.",
+      "required": [],
+      "properties": [
+        "document"
+      ]
+    },
+    {
+      "name": "list_segments",
+      "description": "List segments or memory blocks using exclusive end addresses. Ghidra reports block permissions, address space, image base, initialization, and overlay facts; Hopper marks unavailable permissions explicitly.",
+      "required": [],
+      "properties": [
+        "document"
+      ]
+    },
+    {
+      "name": "list_strings",
+      "description": "List every provider-defined string, or filter to one address, as address/value pairs. Ghidra also reports encoding, terminator status, and byte length.",
+      "required": [],
+      "properties": [
+        "document",
+        "address"
+      ]
+    },
+    {
+      "name": "next_address",
+      "description": "Return the next analyzed object address after an explicit address or current cursor. This is a navigation primitive, not instruction-flow or CFG analysis.",
+      "required": [],
+      "properties": [
+        "document",
+        "address"
+      ]
+    },
+    {
+      "name": "prev_address",
+      "description": "Return the previous analyzed instruction start before an explicit address or current cursor. This is a navigation primitive and may fail at document boundaries.",
+      "required": [],
+      "properties": [
+        "document",
+        "address"
+      ]
+    },
+    {
+      "name": "procedure_address",
+      "description": "Resolve an unambiguous procedure symbol name or provider-normalized address to its canonical entry address. External address spaces remain explicit.",
+      "required": [
+        "procedure"
+      ],
+      "properties": [
+        "procedure",
+        "document"
+      ]
+    },
+    {
+      "name": "procedure_assembly",
+      "description": "Return assembly for one analyzed procedure identified by symbol or hexadecimal address. Use when pseudocode loses calling-convention or instruction-level detail; output is currently returned as one unpaginated string.",
+      "required": [
+        "procedure"
+      ],
+      "properties": [
+        "procedure",
+        "document"
+      ]
+    },
+    {
+      "name": "procedure_callees",
+      "description": "Return the provider's resolved direct callees for one procedure identified by symbol or address. Unresolved indirect calls may be absent; use analyze_function and typed references to preserve available edge uncertainty.",
+      "required": [
+        "procedure"
+      ],
+      "properties": [
+        "procedure",
+        "document"
+      ]
+    },
+    {
+      "name": "procedure_callers",
+      "description": "Return the provider's resolved direct callers for one procedure identified by symbol or address. Results reflect completed static analysis and may omit unresolved indirect references.",
+      "required": [
+        "procedure"
+      ],
+      "properties": [
+        "procedure",
+        "document"
+      ]
+    },
+    {
+      "name": "procedure_info",
+      "description": "Return provider metadata for one procedure identified by symbol or address: entrypoint, signature, locals, size, block count, and complete inclusive body ranges when observed. Body byte count and enclosing span remain distinct; unavailable extent is explicit.",
+      "required": [
+        "procedure"
+      ],
+      "properties": [
+        "procedure",
+        "document"
+      ]
+    },
+    {
+      "name": "read_function_instructions",
+      "description": "Return every raw instruction for one analyzed procedure. Instruction text is provider-specific.",
+      "required": [
+        "procedure"
+      ],
+      "properties": [
+        "procedure",
+        "document"
+      ]
+    },
+    {
+      "name": "read_bytes",
+      "description": "Read analyzed bytes from one provider-normalized virtual address. The hexadecimal payload reports the exact returned length; incomplete reads remain explicit and unsupported provider APIs return typed capability unavailability.",
+      "required": [
+        "address"
+      ],
+      "properties": [
+        "address",
+        "length",
+        "document"
+      ]
+    },
+    {
+      "name": "address_to_file_offset",
+      "description": "Map one provider-normalized virtual address to its original nonnegative file offset. Unmapped addresses fail explicitly, and providers without an authoritative mapping API return typed capability unavailability.",
+      "required": [
+        "address"
+      ],
+      "properties": [
+        "address",
+        "document"
+      ]
+    },
+    {
+      "name": "procedure_references",
+      "description": "Return every raw incoming or outgoing reference edge for one procedure. Endpoint procedures are resolved only from provider containment; Ghidra preserves observed reference kinds while providers without kind authority mark them unavailable.",
+      "required": [
+        "procedure"
+      ],
+      "properties": [
+        "procedure",
+        "direction",
+        "document"
+      ]
+    },
+    {
+      "name": "procedure_pseudo_code",
+      "description": "Decompile one analyzed procedure by symbol name or provider-normalized address. Returns provider-specific pseudocode, never original source or cross-provider text equivalence, and may return null; request procedure_assembly when instruction precision matters.",
+      "required": [
+        "procedure"
+      ],
+      "properties": [
+        "procedure",
+        "document"
+      ]
+    },
+    {
+      "name": "resolve_containing_procedure",
+      "description": "Resolve an arbitrary address, including an interior instruction or exact external entry, to its provider-analyzed containing procedure. A negative result distinguishes outside segments from not in a procedure and is never guessed from nearby symbols.",
+      "required": [
+        "address"
+      ],
+      "properties": [
+        "address",
+        "document"
+      ]
+    },
+    {
+      "name": "search_procedures",
+      "description": "Search every analyzed procedure name using literal matching by default or regex when requested. Results are deterministic and complete.",
+      "required": [
+        "pattern"
+      ],
+      "properties": [
+        "pattern",
+        "mode",
+        "case_sensitive",
+        "document"
+      ]
+    },
+    {
+      "name": "search_strings",
+      "description": "Search every analyzed string using literal matching by default or regex when requested. Results are deterministic and complete.",
+      "required": [
+        "pattern"
+      ],
+      "properties": [
+        "pattern",
+        "mode",
+        "case_sensitive",
+        "document"
+      ]
+    },
+    {
+      "name": "set_address_name",
+      "description": "Assign an analyst name to one hexadecimal address and report Hopper's boolean result. This mutates analysis metadata.",
+      "required": [
+        "address",
+        "name"
+      ],
+      "properties": [
+        "address",
+        "name",
+        "document"
+      ]
+    },
+    {
+      "name": "set_addresses_names",
+      "description": "Assign analyst names to multiple addresses in one call and return per-address success booleans. This mutates analysis metadata; verify failures individually.",
+      "required": [
+        "names"
+      ],
+      "properties": [
+        "names",
+        "document"
+      ]
+    },
+    {
+      "name": "set_bookmark",
+      "description": "Create or replace a bookmark at a hexadecimal address and report success. This mutates navigation metadata; bookmarks are analyst-authored navigation aids, not binary evidence.",
+      "required": [
+        "address"
+      ],
+      "properties": [
+        "address",
+        "name",
+        "document"
+      ]
+    },
+    {
+      "name": "set_comment",
+      "description": "Write a regular analysis comment at a hexadecimal address and return whether readback matched. This mutates the Hopper document; use comments to record evidence IDs or reasoning.",
+      "required": [
+        "address",
+        "comment"
+      ],
+      "properties": [
+        "address",
+        "comment",
+        "document"
+      ]
+    },
+    {
+      "name": "set_current_document",
+      "description": "Select an already-open Hopper document by exact document name. This changes subsequent default-document routing; list_documents can supply names when needed, while explicit document inputs keep calls reproducible.",
+      "required": [
+        "document"
+      ],
+      "properties": [
+        "document"
+      ]
+    },
+    {
+      "name": "set_inline_comment",
+      "description": "Write an inline instruction comment at a hexadecimal address and return whether readback matched. This mutates analysis metadata.",
+      "required": [
+        "address",
+        "comment"
+      ],
+      "properties": [
+        "address",
+        "comment",
+        "document"
+      ]
+    },
+    {
+      "name": "unset_bookmark",
+      "description": "Remove the bookmark at a hexadecimal address and return whether it is absent. This mutates navigation metadata and does not alter binary bytes.",
+      "required": [
+        "address"
+      ],
+      "properties": [
+        "address",
+        "document"
+      ]
+    },
+    {
+      "name": "xrefs",
+      "description": "Return analyzed references to a code or data address. Hopper may default to its current cursor; headless providers such as Ghidra require an explicit address. Use to connect strings, globals, selectors, and functions; bare addresses are untyped and indirect references may be incomplete.",
+      "required": [],
+      "properties": [
+        "document",
+        "address"
+      ]
+    },
+    {
+      "name": "trace_native_values",
+      "description": "Trace a bounded static dependency graph from one explicit native procedure. Includes high-p-code def-use, constants, operators, memory and branch operations, resolved call edges, and derived argument/parameter and return/output bindings. Missing bindings, alias semantics, persistent state and RNG roles remain unknown. Budgets bound depth, decompilations, graph size and payloads; nodes are paginated.",
+      "required": [
+        "procedure"
+      ],
+      "properties": [
+        "procedure",
+        "max_depth",
+        "max_functions",
+        "max_call_sites",
+        "max_nodes",
+        "max_edges",
+        "offset",
+        "limit"
+      ]
+    },
+    {
+      "name": "inspect_native_dispatch_metadata",
+      "description": "Inspect the bound provider's name inventory for Objective-C class/method symbols and Swift mangled symbols, returning at most max_records decoded names. Includes target SHA-256 when available, provider identity/version, analysis-profile digest, facet coverage, and per-record Evidence. This is symbol-level evidence, not runtime metadata: ivar layouts, protocol conformances, witness/class tables, and relative pointers are explicitly marked unsupported unless a provider supplies those decoders. The provider controls how its name inventory is acquired.",
+      "required": [],
+      "properties": [
+        "max_records"
+      ]
+    },
+    {
+      "name": "get_objc_classes",
+      "description": "Discover and deduplicate Objective-C class labels, optionally filtering by literal substring.",
+      "required": [],
+      "properties": [
+        "pattern"
+      ]
+    },
+    {
+      "name": "get_objc_protocols",
+      "description": "Discover and deduplicate Objective-C and Swift protocol labels.",
+      "required": [],
+      "properties": []
+    },
+    {
+      "name": "batch_decompile",
+      "description": "Decompile each explicit procedure symbol or address concurrently. Returns ordered per-item success or error results and aggregate counts.",
+      "required": [],
+      "properties": [
+        "addresses"
+      ]
+    },
+    {
+      "name": "get_call_graph",
+      "description": "Traverse the bound provider's caller or callee relationships from one symbol or address until the reachable graph is exhausted. Every node has an ok/error status and failures use safe typed projections; unresolved indirect calls may be missing and results are not a whole-program CFG.",
+      "required": [
+        "address"
+      ],
+      "properties": [
+        "address",
+        "direction"
+      ]
+    },
+    {
+      "name": "analyze_swift_types",
+      "description": "Categorize analyzed procedure names into Swift classes, structs, enums, protocols, extensions, and other symbols. Returns deduplicated names grouped with counts. Optionally select one category and/or apply a case-sensitive literal name filter; for example, use {category: \"classes\", pattern: \"Account\"} to find matching class symbols.",
+      "required": [],
+      "properties": [
+        "category",
+        "pattern"
+      ]
+    },
+    {
+      "name": "find_xrefs_to_name",
+      "description": "Resolve an exact name against the bound provider's name inventory and return a resolved or unresolved result. Unresolved names use the stable name_not_found reason; this xref workflow returns address-only projections.",
+      "required": [
+        "name"
+      ],
+      "properties": [
+        "name"
+      ]
+    },
+    {
+      "name": "binary_overview",
+      "description": "Return native-binary metadata, every segment with its length, and exhaustive procedure/string counts. Use search_procedures, list_procedures, or analyze_function directly when you already know which procedure to inspect.",
+      "required": [],
+      "properties": []
+    },
+    {
+      "name": "analyze_function",
+      "description": "Build a dossier for one native function identified by symbol or provider-returned address. Returns identity with complete inclusive body ranges or explicit unknown, provider-specific pseudocode and assembly, comments, calls, references, referenced strings/names, local CFG blocks, and available native API boundary observations.",
+      "required": [
+        "procedure"
+      ],
+      "properties": [
+        "procedure"
+      ]
+    },
+    {
+      "name": "inspect_native_api",
+      "description": "Analyze a native API boundary in one function identified by symbol or provider-returned address. Returns confidence, evidence, jump-table dispatch/data/case mappings, separately evidenced default targets, unsupported branches, and residual unknowns. Null case values mean unresolved cases, never a known default.",
+      "required": [
+        "procedure"
+      ],
+      "properties": [
+        "procedure"
+      ]
+    },
+    {
+      "name": "trace_feature",
+      "description": "Trace a literal feature query through every matching string and procedure, their xrefs, and truthful containing-procedure resolution. Returns observations, operation count, and residual unknowns without inferring reference kinds.",
+      "required": [
+        "query"
+      ],
+      "properties": [
+        "query",
+        "case_sensitive"
+      ]
+    },
+    {
+      "name": "trace_call_path",
+      "description": "Trace direct callers or callees from one exact procedure address until the graph is exhausted or the optional goal is reached. Returns visited nodes, direct-call edges, a shortest traversal path, provider failures, and residual unknowns; unresolved indirect calls remain unknown.",
+      "required": [
+        "start"
+      ],
+      "properties": [
+        "start",
+        "goal",
+        "direction"
+      ]
+    },
+    {
+      "name": "trace_native_ui_action",
+      "description": "Trace one unique compiled UI action, object ID, native symbol or exact function address through authored connections, encoded or symbolized Objective-C handlers, and bounded static call references. Typed direct and resolved indirect calls, ambiguous candidates, inferred untyped provider callees, and targetless sites remain distinct. Runtime reachability is unknown; use trace_native_values for recovered value dependencies.",
+      "required": [
+        "action"
+      ],
+      "properties": [
+        "action",
+        "max_depth",
+        "max_nodes",
+        "max_edges"
+      ]
+    },
+    {
+      "name": "observe_native_ui",
+      "description": "Observe an already-running native app by PID and window ID, bound to the active Mach-O target. Captures a bounded accessibility tree and selected-window screenshot; OS permission denial fails without broad capture or target launch.",
+      "required": [
+        "pid",
+        "window_id"
+      ],
+      "properties": [
+        "pid",
+        "window_id",
+        "screenshot",
+        "accessibility",
+        "max_nodes"
+      ]
+    },
+    {
+      "name": "capture_native_ui_scenario",
+      "description": "Run selected-element press, increment/decrement scroll, AXValue text entry and bounded wait steps in one exact native app window. Returns ordered before/after captures and action/capture failures. Actions can change app data, network activity and persistent state; application state is left as-is and restoration is not attempted.",
+      "required": [
+        "pid",
+        "window_id",
+        "steps"
+      ],
+      "properties": [
+        "pid",
+        "window_id",
+        "screenshot",
+        "accessibility",
+        "max_nodes",
+        "steps"
+      ]
+    },
+    {
+      "name": "inspect_macho",
+      "description": "Inspect Mach-O slices, load commands, imports, exports, dependencies, build metadata, segments, sections, permissions, and exact command provenance without launching Hopper.",
+      "required": [],
+      "properties": []
+    },
+    {
+      "name": "inspect_signature",
+      "description": "Inspect the active artifact's code-signing identity, hashes, authorities, requirements, entitlements, hardened-runtime state, and exact command provenance.",
+      "required": [],
+      "properties": []
+    },
+    {
+      "name": "inspect_plist",
+      "description": "Parse Info.plist from the active artifact by default, or pass any local plist path. Returns normalized JSON rather than plutil text.",
+      "required": [],
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "name": "list_architectures",
+      "description": "List thin or universal Mach-O slices with offsets, sizes, alignment, explicit coverage, and native-tool provenance.",
+      "required": [],
+      "properties": []
+    },
+    {
+      "name": "demangle_swift",
+      "description": "Demangle an ordered list of Swift symbols without requiring Hopper. Each input returns demangled, unchanged, or invalid status.",
+      "required": [
+        "symbols"
+      ],
+      "properties": [
+        "symbols"
+      ]
+    },
+    {
+      "name": "inspect_artifact",
+      "description": "Inspect an active archive or application package in one call. Returns the complete content-addressed artifact graph, source Evidence, observations, relationships, integrity contradictions, hypotheses, unexplored branches, limitations, and next probes inline. Read-only DMG mounting is used automatically on supported macOS hosts. Integrity mismatches fail by default; record-and-continue keeps mismatches explicitly untrusted. It does not extract files; use extract_artifact to materialize its regular contents.",
+      "required": [],
+      "properties": [
+        "integrity_policy"
+      ]
+    },
+    {
+      "name": "extract_artifact",
+      "description": "Extract all regular files from the active archive or application package into a fresh temporary directory chosen by REA. The result includes its location. Rejects traversal and symlink escapes, never overwrites, enforces archive integrity checks, and verifies cleanup.",
+      "required": [],
+      "properties": []
+    },
+    {
+      "name": "decode_interface_builder",
+      "description": "Decode compiled storyboard and nib archives inside the active Apple app bundle, including keyed property lists and NIBArchive object tables, into a bounded object, hierarchy, and connection graph. This is static archive parsing; unrecognized archive classes and unresolved code handlers remain explicit unknowns.",
+      "required": [],
+      "properties": [
+        "max_documents",
+        "max_objects",
+        "max_connections"
+      ]
+    },
+    {
+      "name": "inspect_keyed_archive",
+      "description": "Inspect one Foundation NSKeyedArchiver plist in the active app bundle as original object-table nodes, class descriptors, named roots, and UID edges. Preserves shared and cyclic references without instantiating classes. The path is relative to the bundle; root selection and object pagination preserve original identities.",
+      "required": [],
+      "properties": [
+        "path",
+        "root",
+        "offset",
+        "limit"
+      ]
+    },
+    {
+      "name": "inspect_asset_catalog",
+      "description": "Inspect compiled Assets.car metadata in an active Apple app bundle. Returns stable paginated catalog and rendition records with raw assetutil metadata and catalog digests; rendition bytes are not extracted.",
+      "required": [],
+      "properties": [
+        "offset",
+        "limit"
+      ]
+    },
+    {
+      "name": "inspect_managed_artifact",
+      "description": "Open and classify an explicit managed PE/CLI path, or inspect the active managed target, then inventory exact assembly/module identity, target framework evidence, references, resources, and custom attributes without loading or executing target code. Returns complete inline inventories when metadata is admitted and explicit partial or malformed coverage otherwise.",
+      "required": [],
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "name": "inspect_managed_members",
+      "description": "Inspect PE/CLI metadata members, signatures, raw CIL hashes, decoded-instruction-tuple hashes, separately reported exception regions, call edges, and field-access anchors without loading or executing target code. Metadata tokens are reported as build-local coordinates bound to the artifact SHA-256 and MVID; the tuple hash does not resolve them or fully commit control flow.",
+      "required": [],
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "name": "inspect_managed_native_boundaries",
+      "description": "Inspect PE/CLI ModuleRef, ImplMap/PInvoke declarations, CLI native-header indicators, and non-IL method implementation flags without loading or executing target code. Results are managed declarations and degraded native-boundary observations, not verified native exports or addresses.",
+      "required": [],
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "name": "compare_managed_members",
+      "description": "Compare two authenticated inspect_managed_members Evidence records using unique-only decoded-CIL/signature and structural method-shape tiers. Names are reported as observations but are not used as a matching basis; metadata tokens remain build-local coordinates bound to each artifact SHA-256 and MVID, and the tuple digest does not itself remap them.",
+      "required": [
+        "left",
+        "right"
+      ],
+      "properties": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "name": "verify_managed_native_boundaries",
+      "description": "Verify managed P/Invoke/native-boundary declarations against authenticated native export or function Evidence without executing managed code or translating managed metadata tokens into native addresses. The workflow preserves declaration-only, verified, inferred, contradicted, and unresolved states.",
+      "required": [
+        "managed_boundaries",
+        "native_observations"
+      ],
+      "properties": [
+        "managed_boundaries",
+        "native_observations"
+      ]
+    },
+    {
+      "name": "import_managed_reconstruction",
+      "description": "Import decompiler-produced managed reconstruction against authenticated inspect_managed_members Evidence. The workflow locks each method to artifact SHA-256, MVID, metadata token, signature hash, and the limited decoded-IL tuple hash, records the decompiler identity and options, and marks C# or pseudocode as analyst inference rather than canonical byte observation.",
+      "required": [
+        "static_members",
+        "decompiler",
+        "methods"
+      ],
+      "properties": [
+        "static_members",
+        "decompiler",
+        "methods",
+        "notes"
+      ]
+    },
+    {
+      "name": "project_managed_application_graph",
+      "description": "Project authenticated managed artifact, member, and native-boundary Evidence into the provider-neutral application graph without executing managed code, loading assemblies, or translating managed metadata tokens to native addresses. The graph preserves managed static observations as managed-specific nodes linked to source Evidence.",
+      "required": [],
+      "properties": []
+    },
+    {
+      "name": "inspect_android_package",
+      "description": "Inspect a local APK's package, SDK and permission declarations, decoded manifest and class/resource counts. Does not execute the APK or verify signatures. Requires a caller-supplied JADX MCP JAR and Java; uses one worker in an isolated temporary workspace.",
+      "required": [
+        "path"
+      ],
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "name": "search_android_classes",
+      "description": "Search complete decompiler class names in an explicit local APK by case-sensitive substring. Empty query inventories all classes. Retains artifact and engine identity; no APK execution.",
+      "required": [
+        "path",
+        "query"
+      ],
+      "properties": [
+        "path",
+        "query"
+      ]
+    },
+    {
+      "name": "inspect_android_class",
+      "description": "Inspect one exact Android class's methods, fields and inner classes. Returns display signatures and explicit unknown DEX descriptors without materializing the whole application source.",
+      "required": [
+        "path",
+        "class_name"
+      ],
+      "properties": [
+        "path",
+        "class_name"
+      ]
+    },
+    {
+      "name": "inspect_android_method",
+      "description": "Decompile one Android method with smali fallback. Requires explicit overload_index when multiple methods share a name. Reports representation, fallback markers and source truncation; never treats display signatures as exact DEX identities.",
+      "required": [
+        "path",
+        "class_name",
+        "method_name"
+      ],
+      "properties": [
+        "path",
+        "class_name",
+        "method_name",
+        "overload_index"
+      ]
+    },
+    {
+      "name": "trace_android_references",
+      "description": "Trace incoming static references to an exact Android class or unique method. Overloaded method reference queries are explicitly unsupported by the current engine. Source lines and DEX offsets remain unknown; no runtime calls are inferred.",
+      "required": [
+        "path",
+        "class_name"
+      ],
+      "properties": [
+        "path",
+        "class_name",
+        "method_name"
+      ]
+    },
+    {
+      "name": "inspect_firmware_regions",
+      "description": "Inspect signature candidates in a local firmware file with Binwalk 3.1.0. Returns offsets, reported lengths, descriptions and raw confidence values. Length validation and runtime addresses remain unknown. No extraction or target execution. Linux, caller-supplied tool and util-linux prlimit required; 128 MiB input limit, one worker and 120-second deadline.",
+      "required": [
+        "path"
+      ],
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "name": "extract_firmware",
+      "description": "Extract caller-selected firmware bytes with Unblob 26.6.4 into an absent output directory. Returns verified child paths/digests, task derivations, unknown chunks and extraction diagnostics inline. Preserves the default sandbox; publishes regular files only. Linux, caller-supplied tool, format-specific extractors and util-linux prlimit required. No mounts or extracted-code execution. Select a returned native file with open_binary for Ghidra analysis; decompressed offsets are not original-file addresses.",
+      "required": [
+        "path",
+        "output_directory"
+      ],
+      "properties": [
+        "path",
+        "output_directory",
+        "range",
+        "max_depth",
+        "max_output_bytes",
+        "max_output_files"
+      ]
+    },
+    {
+      "name": "list_browser_targets",
+      "description": "List page targets exposed by the selected loopback Chrome DevTools Protocol endpoint. Optionally filter by exact origin. URLs preserve query values and fragments; only URL userinfo credentials are removed.",
+      "required": [
+        "cdp_endpoint"
+      ],
+      "properties": [
+        "cdp_endpoint",
+        "allowed_origins"
+      ]
+    },
+    {
+      "name": "inspect_web_page",
+      "description": "Passively inspect one selected page target through CDP without evaluating JavaScript, navigating, clicking, closing, or mutating the page. If no origin filter is supplied, capture is scoped to the target's current origin. Returns DOM structure, accessibility, scripts, resources, attach-window network and console metadata, workers, and redacted storage inventory as Evidence.",
+      "required": [],
+      "properties": []
+    },
+    {
+      "name": "analyze_web_bundle",
+      "description": "Capture JavaScript source from one selected CDP page and statically derive a chunk graph, route and endpoint candidates, vendor fingerprints, page-declared WebMCP metadata, and optionally fetch source maps from the selected target origin or explicitly requested origins. JavaScript is parsed but never executed.",
+      "required": [
+        "cdp_endpoint",
+        "target_id"
+      ],
+      "properties": [
+        "cdp_endpoint",
+        "allowed_origins",
+        "target_id",
+        "observation_ms",
+        "include_accessibility_text",
+        "include_console_text",
+        "include_json_body_shapes",
+        "include_websocket_shapes",
+        "include_storage_keys",
+        "include_storage_fingerprints",
+        "include_script_sources",
+        "fetch_source_maps"
+      ]
+    },
+    {
+      "name": "observe_web_session",
+      "description": "Arm a CDP observation window of the requested duration while the user operates the page. By default it follows the selected target's current origin; an explicit origin list controls which origins may be retained. Records navigation, redirect, lifecycle, and failure events.",
+      "required": [
+        "cdp_endpoint",
+        "target_id"
+      ],
+      "properties": [
+        "cdp_endpoint",
+        "allowed_origins",
+        "target_id",
+        "observation_ms"
+      ]
+    },
+    {
+      "name": "discover_webmcp_tools",
+      "description": "Passively inventory every page-registered WebMCP tool and its complete structural input-schema summary using the experimental CDP WebMCP domain. Metadata is page-declared-untrusted; REA never registers or invokes discovered tools.",
+      "required": [
+        "cdp_endpoint",
+        "target_id"
+      ],
+      "properties": [
+        "cdp_endpoint",
+        "allowed_origins",
+        "target_id",
+        "observation_ms"
+      ]
+    },
+    {
+      "name": "compare_web_captures",
+      "description": "Compare passive web captures by providing before and after, or compare recorded scenarios by providing before_scenario and after_scenario with an optional normalization policy. Use exactly one input group. Scenario comparison aligns exact step IDs, records deterministic literal normalization, and returns every artifact-level difference plus alignment failures inline. Missing or truncated evidence never proves equality.",
+      "required": [],
+      "properties": [
+        "before",
+        "after",
+        "before_scenario",
+        "after_scenario",
+        "normalization"
+      ]
+    },
+    {
+      "name": "capture_web_screenshot",
+      "description": "Capture the current visible viewport of one configured page as an inline, content-addressed PNG artifact. The operation never scrolls, navigates, or evaluates page JavaScript.",
+      "required": [
+        "cdp_endpoint",
+        "target_id"
+      ],
+      "properties": [
+        "cdp_endpoint",
+        "allowed_origins",
+        "target_id"
+      ]
+    },
+    {
+      "name": "compare_web_screenshots",
+      "description": "Compare two self-verifying PNG screenshot artifacts with local pixel metrics. Returns exact changed-pixel ratios and channel deltas without OCR or external services.",
+      "required": [
+        "before",
+        "after"
+      ],
+      "properties": [
+        "before",
+        "after",
+        "channel_threshold"
+      ]
+    },
+    {
+      "name": "capture_browser_scenario",
+      "description": "Run a controlled browser scenario when passive observation cannot exercise the application. Launch the selected executable or connect to a loopback CDP target, provide a start URL and actions, and select storage or artifacts when needed. Environment, empty storage, and a URL-only final capture are defaults; provide initial storage or additional artifacts when needed. Agents can run their own local fixture servers to control application responses. Actions run until completion or cancellation unless timeout_ms is set. Results are returned inline.",
+      "required": [
+        "browser",
+        "start_url",
+        "actions"
+      ],
+      "properties": [
+        "browser",
+        "start_url",
+        "environment",
+        "actions",
+        "storage",
+        "secrets",
+        "capture"
+      ]
+    },
+    {
+      "name": "list_electron_targets",
+      "description": "List every Electron file:// page target from a selected loopback CDP endpoint. Local file paths are canonicalized after symlink resolution. Selecting an endpoint exposes every eligible target and its local path metadata.",
+      "required": [
+        "cdp_endpoint"
+      ],
+      "properties": [
+        "cdp_endpoint"
+      ]
+    },
+    {
+      "name": "inspect_electron_page",
+      "description": "Passively inspect one Electron file page by supplying its loopback CDP endpoint and target ID. The provider rechecks that the target currently exists at that endpoint and is a local file page. Returns frames, DOM structure, resource paths, and scripts without evaluating renderer JavaScript or invoking Electron APIs. The selected endpoint exposes every local file page and its metadata to this tool.",
+      "required": [],
+      "properties": []
+    },
+    {
+      "name": "analyze_javascript_application",
+      "description": "Reconstruct one local ASAR or extracted JavaScript application as an inline application graph without executing it. Returns all recovered graph nodes, edges, semantic relations, limitations, and coverage.",
+      "required": [
+        "input_path"
+      ],
+      "properties": [
+        "input_path",
+        "format"
+      ]
+    },
+    {
+      "name": "reconcile_javascript_runtime",
+      "description": "Reconcile verified static JavaScript application graphs with existing passive web/Electron CDP, passive V8 Inspector, or provider-owned active Electron Evidence. Active Electron captures contribute an explicitly partial target-only runtime record; they never invent renderer scripts, frames, workers, or execution claims. Exact captured-source digests take priority over caller-declared file/URL mappings; target, frame, script, and worker ambiguity remains explicit, and source-map authority stays separate.",
+      "required": [
+        "static_layers",
+        "runtime_observations"
+      ],
+      "properties": [
+        "static_layers",
+        "runtime_observations"
+      ]
+    },
+    {
+      "name": "capture_electron_scenario",
+      "description": "Use this for a provider-owned Electron run when passive CDP or Inspector observation cannot exercise application behavior. REA owns startup and teardown, accepts caller-defined click/wait actions plus window-targeted renderer reload/crash and synthetic open-url/second-instance delivery, and returns correlated window/WebContents/process/preload/session/navigation/shell/IPC evidence without retaining payload values. Results identify observed and unavailable event families, coverage status, action targets, and truncation. External shell, navigation, permission, download, popup, updater, and OS-integration effects are blocked and recorded. Use passive Electron tools for observation-only work.",
+      "required": [
+        "executable_path",
+        "application_path"
+      ],
+      "properties": [
+        "executable_path",
+        "application_path",
+        "application_root",
+        "args",
+        "actions"
+      ]
+    },
+    {
+      "name": "list_javascript_runtime_targets",
+      "description": "List every eligible Node/Electron V8 Inspector target from an explicit literal-loopback endpoint. Node discovery file locations that cannot be verified are preserved as unresolved reported URLs; they do not prove filesystem identity. Listing does not attach to targets.",
+      "required": [
+        "inspector_endpoint"
+      ],
+      "properties": [
+        "inspector_endpoint"
+      ]
+    },
+    {
+      "name": "observe_javascript_runtime",
+      "description": "Attach passively to one Node/Electron V8 Inspector target by supplying its loopback Inspector endpoint and target ID. The provider rechecks target presence and attachability; a Node discovery file location may remain unresolved. Loaded script locations are validated independently from Debugger.scriptParsed. Captures script and Runtime execution-context metadata. REA never evaluates, pauses, resumes, reads source, or instruments the target; require/import edges, EventEmitter activity, and Electron IPC remain explicit unknowns. Reconcile the result with static Application Graph Evidence using reconcile_javascript_runtime. The selected endpoint exposes every target it serves to this tool.",
+      "required": [
+        "inspector_endpoint",
+        "target_id"
+      ],
+      "properties": [
+        "inspector_endpoint",
+        "target_id",
+        "runtime_kind",
+        "observation_ms"
+      ]
+    },
+    {
+      "name": "trace_application_feature",
+      "description": "Trace a typed literal seed through every reachable part of an authenticated JavaScript Application Graph supplied as inline Evidence or exact same-session retained references. Original static, native, passive-runtime, inferred, and unknown authorities remain distinct; native addon handoffs never open a provider or execute the application.",
+      "required": [
+        "seed",
+        "application"
+      ],
+      "properties": [
+        "native_observations",
+        "seed",
+        "direction",
+        "application"
+      ]
+    },
+    {
+      "name": "trace_javascript_semantics",
+      "description": "Trace static JavaScript data-flow, direct call/return, and closure relations from inline application Evidence or an exact same-session retained reference. Dynamic or unsupported semantics remain explicit unknowns; static reachability never claims runtime execution.",
+      "required": [
+        "application",
+        "query"
+      ],
+      "properties": [
+        "application",
+        "query"
+      ]
+    },
+    {
+      "name": "compare_application_versions",
+      "description": "Compare two authenticated JavaScript Application Graph versions supplied as inline Evidence or exact same-session retained references. Uses unique-only exact digest, module source digest, source-map identity, structural fingerprint, and non-module semantic-key tiers. Reports added, removed, changed, ambiguous, and unknown entities plus the complete matching changed_from graph without fuzzy or module-ordinal pairing.",
+      "required": [
+        "left",
+        "right"
+      ],
+      "properties": [
+        "left_native_observations",
+        "right_native_observations",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "name": "compare_source_to_bundle",
+      "description": "Compare a cryptographically committed HistoricalSourceGraph with authenticated JavaScript Application Graph Evidence supplied inline or by exact same-session retained reference. Uses explicit exact-digest, source-map path, current-path, suffix, and basename signals with stable weights. Classifies unchanged, modified, removed, split, merged, duplicated, and unknown; incomplete coverage and ambiguous weak signals never become absence or forced matches.",
+      "required": [
+        "reference",
+        "application"
+      ],
+      "properties": [
+        "reference",
+        "application"
+      ]
+    },
+    {
+      "name": "compare_javascript_export_shapes",
+      "description": "Compare static return shapes for one exact module/export selector on each authenticated JavaScript Application Graph supplied as inline Evidence or exact same-session retained references. Variants pair only by reciprocal unique literal discriminants; dynamic values, incomplete properties, and ambiguous variants remain unknown. Reports JSON Pointer changes without executing JavaScript; runtime behavior requires a separate agent-run probe.",
+      "required": [
+        "left_module_path",
+        "left_export_name",
+        "right_module_path",
+        "right_export_name",
+        "left",
+        "right"
+      ],
+      "properties": [
+        "left_module_path",
+        "left_export_name",
+        "right_module_path",
+        "right_export_name",
+        "left",
+        "right"
+      ]
+    },
+    {
+      "name": "build_reconstruction_obligation_ledger",
+      "description": "Generate the complete deterministic ReconstructionObligationLedger from an authenticated Evidence bundle, reviewed obligations, and an explicit reconstruction manifest. Static candidates remain candidates; duplicate ownership, missing original or reconstruction cases, missing parser/type, weak verifier authority, unenumerated claims, contradictions, dependencies, and residual unknowns fail closed. The inline result carries the full-ledger closure digest and typed per-obligation diagnostics.",
+      "required": [
+        "evidence_bundle",
+        "reviewed_obligations",
+        "manifest"
+      ],
+      "properties": [
+        "evidence_bundle",
+        "reviewed_obligations",
+        "manifest"
+      ]
+    },
+    {
+      "name": "evaluate_reconstruction_coverage",
+      "description": "Evaluate inline evidence-backed reconstruction coverage against one named boundary. Missing ownership or inventory is partial; stale, weak, truncated, skipped, or unresolved proof is unknown; contradictions, failed proof, missing owners, and authority routing fail closed.",
+      "required": [
+        "coverage",
+        "boundary_id"
+      ],
+      "properties": [
+        "coverage",
+        "boundary_id"
+      ]
+    },
+    {
+      "name": "open_binary",
+      "description": "Open a local executable, application bundle, archive, JavaScript, source map, plist, or analysis database after validation. format=dos-com explicitly interprets 1..65280 headerless bytes as a DOS COM analysis image; omission preserves header-based detection. provider_id selects one deep provider or deterministic auto selection; the binding remains stable until close or an explicit switch, with no failure fallback. An optional analysis snapshot is imported atomically and must match the binary identity, concrete provider, and canonical analysis profile exactly.",
+      "required": [
+        "path"
+      ],
+      "properties": [
+        "path",
+        "format",
+        "provider_id",
+        "snapshot_path"
+      ]
+    },
+    {
+      "name": "close_binary",
+      "description": "Optionally write a provider-neutral analysis snapshot atomically to the caller-supplied path, then close the active target and every provider resource started for it. Existing files require explicit overwrite; a failed save leaves the session open so cached analysis is not lost.",
+      "required": [],
+      "properties": [
+        "snapshot_path",
+        "overwrite"
+      ]
+    },
+    {
+      "name": "binary_session",
+      "description": "Report the complete current target, provider, capability availability, client-feature, analysis, and server-identity status without starting analysis.",
+      "required": [],
+      "properties": [
+        "expected_package_version",
+        "expected_catalog_digest",
+        "expected_server_path"
+      ]
+    },
+    {
+      "name": "export_evidence_bundle",
+      "description": "Atomically write the session's deterministic Evidence bundle to the requested local path. Existing files require overwrite: true; records and manifests use canonical byte-stable ordering.",
+      "required": [
+        "path"
+      ],
+      "properties": [
+        "path",
+        "overwrite"
+      ]
+    },
+    {
+      "name": "import_evidence_bundle",
+      "description": "Read the JSON bundle at the supplied local path, validate every Evidence ID and canonical manifest, then atomically merge it. Imported content is data only and is never executed.",
+      "required": [
+        "path"
+      ],
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "name": "get_evidence_bundle",
+      "description": "Return every Evidence record and residual unknown currently retained by this session as one inline bundle for direct inspection or follow-up workflows.",
+      "required": [],
+      "properties": []
+    },
+    {
+      "name": "capture_process_scenario",
+      "description": "Run one caller-selected command under a PTY and return process capture Evidence with residual unknowns. A command name resolves through the inherited PATH; the working directory defaults to the caller's current directory; host environment variables are inherited with scenario overrides. Filesystem snapshots are opt-in through filesystem_observation_paths. The target runs with the current user's permissions; this is not a security sandbox.",
+      "required": [
+        "executable"
+      ],
+      "properties": [
+        "executable",
+        "arguments",
+        "working_directory",
+        "environment",
+        "filesystem_observation_paths",
+        "terminal",
+        "events",
+        "timeout_ms",
+        "idle_timeout_ms",
+        "settle_ms",
+        "limits",
+        "normalization"
+      ]
+    },
+    {
+      "name": "compare_process_captures",
+      "description": "Compare two compatible process capture observations across terminal, interaction, lifecycle, process, filesystem, command-shim, HTTP, and WebSocket evidence. Optional trace_spec validates exact events against an explicit partial order or finite trace language; concurrency is never inferred from timestamps or broad sorting. Missing, journal-free, or truncated observations are never treated as equivalent.",
+      "required": [
+        "left",
+        "right"
+      ],
+      "properties": [
+        "left",
+        "right",
+        "trace_spec",
+        "max_capture_age_ms"
+      ]
+    },
+    {
+      "name": "compare_artifacts",
+      "description": "Compare complete artifact inventories by logical occurrence path, content identity, metadata, and graph relations. Pass the inventory Evidence nested in each inspect_artifact result as left and right. Every delta cites both inputs, and gaps yield truncated or unknown, never equivalence. Returns every change inline.",
+      "required": [
+        "left",
+        "right"
+      ],
+      "properties": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "name": "compare_functions",
+      "description": "Compare two explicit sets of analyze_function Evidence across identity, exact provider text, calls, references, strings, and address-normalized CFG topology. Missing or provider-incompatible facets remain truncated or unknown; every conclusion cites both Evidence sets.",
+      "required": [
+        "left",
+        "right"
+      ],
+      "properties": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "name": "compare_bundles",
+      "description": "Compare two canonical Evidence bundles by exact record membership, explicit one-to-one observation pairs, and complete residual-unknown revision histories. Missing bundle members describe omission only, never behavioral equivalence; output is digest-anchored and returns every change inline.",
+      "required": [
+        "left_bundle_path",
+        "right_bundle_path"
+      ],
+      "properties": [
+        "left_bundle_path",
+        "right_bundle_path",
+        "record_pairs"
+      ]
+    },
+    {
+      "name": "find_changed_behavior",
+      "description": "Aggregate validated process and artifact comparison Evidence. Runtime observations remain distinct from static behavior candidates; missing or incomplete comparisons produce unresolved findings, never causal claims. Returns every finding inline.",
+      "required": [],
+      "properties": [
+        "comparisons"
+      ]
+    },
+    {
+      "name": "build_call_path",
+      "description": "Build every shortest direct-callee path inline from complete analyze_function Evidence records using exact canonical addresses. Missing dossiers and provider mixing remain unknown; every node and edge cites source Evidence.",
+      "required": [
+        "functions",
+        "start",
+        "goal"
+      ],
+      "properties": [
+        "functions",
+        "start",
+        "goal"
+      ]
+    },
+    {
+      "name": "correlate_static_and_runtime",
+      "description": "Evaluate every explicit caller-declared hypothesis between exact static comparison findings and runtime comparison dimensions. Similar names or paths are never auto-matched, consistent cochange never proves causality, and unknown or truncated inputs remain unresolved. Returns all correlations and their complete Evidence closure inline.",
+      "required": [
+        "static_comparisons",
+        "runtime_comparisons",
+        "mappings"
+      ],
+      "properties": [
+        "static_comparisons",
+        "runtime_comparisons",
+        "mappings"
+      ]
+    },
+    {
+      "name": "verify_reconstruction",
+      "description": "Verify a finite typed behavioral and structural specification against a canonical Evidence bundle. Pass means every declared claim has complete comparable authority\u2014not global source equivalence; changed claims fail and missing, limited, or unresolved evidence stays unknown.",
+      "required": [
+        "specification"
+      ],
+      "properties": [
+        "specification"
+      ]
+    },
+    {
+      "name": "list_unknowns",
+      "description": "List every current residual-unknown head in deterministic ID order, with optional exact status, severity, and domain filters. Results are complete and inline. This is read-only; unresolved, contradicted, and non-truth dispositions remain distinct.",
+      "required": [],
+      "properties": [
+        "status",
+        "severity",
+        "domain"
+      ]
+    },
+    {
+      "name": "record_unknown",
+      "description": "Create one deterministic residual unknown and immutable mutation evidence. Validates all evidence and relationship references, and rejects duplicate stable identity.",
+      "required": [
+        "question",
+        "severity",
+        "domain",
+        "required_authority",
+        "required_confidence",
+        "required_environment",
+        "recommended_probes",
+        "relationships"
+      ],
+      "properties": [
+        "question",
+        "severity",
+        "domain",
+        "required_authority",
+        "required_confidence",
+        "required_environment",
+        "recommended_probes",
+        "relationships",
+        "supporting_evidence_ids",
+        "contradicting_evidence_ids"
+      ]
+    },
+    {
+      "name": "update_unknown",
+      "description": "Append one immutable full-state revision and mutation evidence. Requires exact expected_revision; stale concurrent writers fail instead of overwriting newer analysis.",
+      "required": [
+        "unknown_id",
+        "expected_revision",
+        "status",
+        "severity",
+        "supporting_evidence_ids",
+        "contradicting_evidence_ids",
+        "required_authority",
+        "required_confidence",
+        "required_environment",
+        "recommended_probes",
+        "relationships",
+        "resolution"
+      ],
+      "properties": [
+        "unknown_id",
+        "expected_revision",
+        "status",
+        "severity",
+        "supporting_evidence_ids",
+        "contradicting_evidence_ids",
+        "required_authority",
+        "required_confidence",
+        "required_environment",
+        "recommended_probes",
+        "relationships",
+        "resolution"
+      ]
+    },
+    {
+      "name": "verify_unknown_resolution",
+      "description": "Revalidate the current residual-unknown head against live bundled evidence, exact authority/confidence/environment requirements, and revision integrity. Withdrawn and out-of-scope dispositions are not truth claims.",
+      "required": [
+        "unknown_id"
+      ],
+      "properties": [
+        "unknown_id"
+      ]
+    },
+    {
+      "name": "get_navigation_context",
+      "description": "Return the selected document, current address, and containing/current procedure in one provider-neutral result. The result reflects sequential provider observations, not an atomic cursor snapshot; a cursor outside any procedure returns procedure: null.",
+      "required": [],
+      "properties": [
+        "document"
+      ]
+    },
+    {
+      "name": "inspect_address_context",
+      "description": "Inspect one explicit reproducible address for its analyzed name, containing procedure, regular and inline comments, and matching bookmarks. Each unsupported facet returns a typed unavailable outcome; use xrefs, assembly, or pseudocode for those deeper views.",
+      "required": [
+        "address"
+      ],
+      "properties": [
+        "address",
+        "document"
+      ]
+    }
+  ]
+}

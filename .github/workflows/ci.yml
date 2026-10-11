@@ -12,7 +12,7 @@ jobs:
         run: |
           python -m compileall -q . || exit 1
           python - <<'PY'
-          import json,glob,pathlib,sys
+          import json,glob,sys
           bad=0
           for f in glob.glob("**/*.json",recursive=True):
               if ".git/" in f: continue
@@ -20,3 +20,27 @@ jobs:
               except Exception as e: print("BAD JSON",f,e); bad=1
           sys.exit(bad)
           PY
+
+  suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install analysis backends
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq binutils file yara tshark
+          python -m pip install -q -r requirements-mcp.txt
+          pip install -q binwalk || true     # optional: firmware lane SKIPs without it
+      - name: Build fixtures from source
+        run: bash tests/samples/build_samples.sh
+      - name: rekit suite (quick)
+        run: REKIT_PYTHON="$(command -v python3)" bash tests/run_rekit_suite.sh --quick /tmp/suite
+      - name: Upload suite log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rekit-suite-log
+          path: /tmp/suite/rekit_suite.log

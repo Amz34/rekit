@@ -60,9 +60,17 @@ class TestCli(unittest.TestCase):
 class TestMcp(unittest.TestCase):
     def test_lists_re_tools(self):
         try:
-            import mcp  # noqa: F401
-        except ImportError:
-            self.skipTest("mcp package not installed (pip install -r requirements-mcp.txt)")
+            import mcp.server.fastmcp  # noqa: F401
+        except ImportError as exc:
+            import importlib.metadata as md
+            try:
+                ver = md.version("mcp")
+            except Exception:
+                ver = "not installed"
+            if ver == "not installed":
+                self.skipTest("mcp package not installed (pip install -r requirements-mcp.txt)")
+            self.fail(f"mcp {ver} is installed but mcp.server.fastmcp is missing - this server "
+                      f"needs mcp 1.x, not 2.x (pip install -r requirements-mcp.txt): {exc}")
         port = free_port()
         proc = subprocess.Popen([sys.executable, str(SERVER), "--http",
                                  "--host", "127.0.0.1", "--port", str(port)],
@@ -102,7 +110,13 @@ class TestMcp(unittest.TestCase):
                     last = exc
                     time.sleep(2)
             else:
-                self.fail(f"MCP server never answered initialize: {last}")
+                try:
+                    proc.terminate()
+                    out = proc.communicate(timeout=5)[0] or ""
+                except Exception:
+                    out = ""
+                self.fail(f"MCP server never answered initialize: {last}\n"
+                          f"--- server output ---\n{out[-2000:]}")
             post({"jsonrpc": "2.0", "method": "notifications/initialized"}, session=session)
             status, raw, _ = post({"jsonrpc": "2.0", "id": 2, "method": "tools/list",
                                    "params": {}}, session=session)

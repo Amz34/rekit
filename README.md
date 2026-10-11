@@ -149,13 +149,32 @@ Ghidra stack trace).
 
 ## Verified on
 
+Full audit - method, evidence and known gaps - is in **[docs/verification.md](docs/verification.md)**.
+
 | | |
 |---|---|
-| Architecture | aarch64 (ARM64) Linux, Ubuntu 24.04 |
-| Python | 3.12 |
-| Ghidra | 12.1.4, JDK 21 |
-| Backends present | `readelf`, `objdump`, `radare2`, `binwalk`, `tshark`, `yara` |
-| Smoke test | `python3 tests/smoke_test.py` → 4 CLI checks + 1 MCP check, all pass |
+| Architecture | aarch64 (ARM64) Linux, Ubuntu 24.04.4 |
+| Python | 3.12 (venv) / 3.11 (system) |
+| Ghidra | 12.1.4, JDK 21, native aarch64 decompiler |
+| Agentic layer | `rea-agents` 4.1.0 - 125 MCP tools |
+| Suite | `bash tests/run_rekit_suite.sh` → **16 checks: 16 pass, 0 fail, 0 skip** |
+| MCP surface | 13/13 tools advertised over a real stdio handshake |
+| Cross-surface | one binary, one sha256 - identical via `sha256sum`, `rekit triage` and REA |
+
+On a host without the optional PE/APK fixtures or Ghidra, the same suite reports
+`12 pass / 4 skip`, naming each missing input - a skip is never counted as a pass.
+
+## The stack
+
+rekit is the CLI/MCP layer. The optional agentic layer sits on the same Ghidra install:
+
+* **[docs/stack.md](docs/stack.md)** - the three layers and when to use which.
+* **[rea/README.md](rea/README.md)** - run REA as a second MCP server next to rekit.
+* **[rea/agentic-re-map.md](rea/agentic-re-map.md)** - machine-readable map of all 125 REA
+  tools, grouped by intent, with the golden chain and invariants. Regenerate it with
+  `python3 rea/dump_tools.py && python3 rea/make_map.py`.
+* **[docs/ghidra-arm64.md](docs/ghidra-arm64.md)** - the native aarch64 decompiler: why the
+  release does not ship it, how to build it, and how to verify the ELF.
 
 ## Scope
 
@@ -168,5 +187,15 @@ is missing the subcommand says so; it never substitutes a guess for a finding.
 MIT — see `LICENSE`.
 
 ---
+
+**Try it in one line:**
+
+```bash
+git clone https://github.com/Amz34/rekit.git && cd rekit && python3 rekit.py triage /bin/ls --json
+```
+
+If it saves you time, a star helps others find it. Run the suite on your own host first -
+if a lane reports `tool_missing`, or a check you expected is silently skipped, open an
+issue with the suite log: the 16 checks above are the checklist.
 
 Part of [my always-on agent stack](https://github.com/Amz34) · [Awesome Agent Infrastructure](https://github.com/Amz34/awesome-agent-infrastructure) (135 live-checked building blocks).
