@@ -1,11 +1,16 @@
 # rekit
 
+[![ci](https://github.com/Amz34/rekit/actions/workflows/ci.yml/badge.svg)](https://github.com/Amz34/rekit/actions/workflows/ci.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 **Read-only reverse-engineering toolkit — CLI and MCP server.**
 
 `rekit` gives a terminal — and any MCP-speaking AI agent — a single safe front-end for
 static analysis: file triage, strings, IOC extraction, disassembly, APK/DEX, firmware
 images, JS bundles, PCAPs and headless Ghidra decompilation. It never executes a sample,
 and it never invents a result.
+
+![rekit — read-only static analysis toolkit: triage, strings, disassembly and headless Ghidra decompilation](assets/rekit-overview.jpg)
 
 | Guarantee | How it works |
 |---|---|
