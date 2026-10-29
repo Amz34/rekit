@@ -2,6 +2,7 @@
 
 [![ci](https://github.com/Amz34/rekit/actions/workflows/ci.yml/badge.svg)](https://github.com/Amz34/rekit/actions/workflows/ci.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/Amz34/badge.svg)](https://hub.xerj.org/contributors/Amz34)
 
 **Read-only reverse-engineering toolkit — CLI and MCP server.**
 
