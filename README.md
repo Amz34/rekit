@@ -1,10 +1,13 @@
 # rekit
 
 [![ci](https://github.com/Amz34/rekit/actions/workflows/ci.yml/badge.svg)](https://github.com/Amz34/rekit/actions/workflows/ci.yml)
+[![docs](https://img.shields.io/badge/docs-amz34.github.io%2Frekit-38bdf8.svg)](https://amz34.github.io/rekit/)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/Amz34/badge.svg)](https://hub.xerj.org/contributors/Amz34)
 
 **Read-only reverse-engineering toolkit — CLI and MCP server.**
+
+👉 **Live Official Documentation & MCP Guide**: [https://amz34.github.io/rekit/](https://amz34.github.io/rekit/)
 
 `rekit` gives a terminal — and any MCP-speaking AI agent — a single safe front-end for
 static analysis: file triage, strings, IOC extraction, disassembly, APK/DEX, firmware
