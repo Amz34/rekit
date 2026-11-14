@@ -19,7 +19,20 @@ static analysis: file triage, strings, IOC extraction, disassembly, APK/DEX, fir
 images, JS bundles, PCAPs and headless Ghidra decompilation. It never executes a sample,
 and it never invents a result.
 
-![rekit — read-only static analysis toolkit: triage, strings, disassembly and headless Ghidra decompilation](assets/rekit-overview.jpg)
+```
+[Binary / Firmware / APK / PCAP] 
+               │
+               ▼
+   ┌───────────────────────┐
+   │    rekit CLI / MCP    │ ── (Bounded, Zero-Execution Safety Gate)
+   └───────────────────────┘
+               │
+   ┌───────────┼───────────┬───────────┐
+   ▼           ▼           ▼           ▼
+[triage]    [iocs]     [disasm]    [ghidra]
+SHA256      IPs/URLs   radare2     Headless C
+Entropy     Keys/JWT   objdump     Decompilation
+```
 
 | Guarantee | How it works |
 |---|---|
