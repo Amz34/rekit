@@ -1,13 +1,18 @@
 # rekit
 
 [![ci](https://github.com/Amz34/rekit/actions/workflows/ci.yml/badge.svg)](https://github.com/Amz34/rekit/actions/workflows/ci.yml)
-[![docs](https://img.shields.io/badge/docs-amz34.github.io%2Frekit-38bdf8.svg)](https://amz34.github.io/rekit/)
+[![Documentation](https://img.shields.io/badge/📖_Live_Docs-amz34.github.io%2Frekit-0284c7?style=for-the-badge&logo=googlechrome&logoColor=white)](https://amz34.github.io/rekit/)
+[![MCP Server](https://img.shields.io/badge/⚡_MCP_Ready-Claude%20%7C%20Cursor%20%7C%20Agents-8b5cf6?style=for-the-badge)](https://amz34.github.io/rekit/mcp/quickstart/)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/Amz34/badge.svg)](https://hub.xerj.org/contributors/Amz34)
 
-**Read-only reverse-engineering toolkit — CLI and MCP server.**
+> 🚀 **Explore the interactive developer documentation & live CLI/MCP guides:**  
+> ### 🌐 [**amz34.github.io/rekit**](https://amz34.github.io/rekit/) ➔
+> *(Interactive API reference, zero-detonation guarantees, and instant Claude Desktop / agent configs)*
 
-👉 **Live Official Documentation & MCP Guide**: [https://amz34.github.io/rekit/](https://amz34.github.io/rekit/)
+---
+
+**Deterministic, read-only reverse-engineering toolkit — CLI and MCP server.**
 
 `rekit` gives a terminal — and any MCP-speaking AI agent — a single safe front-end for
 static analysis: file triage, strings, IOC extraction, disassembly, APK/DEX, firmware
