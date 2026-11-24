@@ -1,5 +1,6 @@
 # rekit
 
+[![Amz34/rekit MCP server](https://glama.ai/mcp/servers/Amz34/rekit/badges/score.svg)](https://glama.ai/mcp/servers/Amz34/rekit)
 [![ci](https://github.com/Amz34/rekit/actions/workflows/ci.yml/badge.svg)](https://github.com/Amz34/rekit/actions/workflows/ci.yml)
 [![Documentation](https://img.shields.io/badge/📖_Live_Docs-amz34.github.io%2Frekit-0284c7?style=for-the-badge&logo=googlechrome&logoColor=white)](https://amz34.github.io/rekit/)
 [![MCP Server](https://img.shields.io/badge/⚡_MCP_Ready-Claude%20%7C%20Cursor%20%7C%20Agents-8b5cf6?style=for-the-badge)](https://amz34.github.io/rekit/mcp/quickstart/)
